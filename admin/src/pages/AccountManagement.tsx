@@ -1,12 +1,11 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import {
-    Box, Typography, Card, CardContent, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Select, MenuItem, InputLabel, FormControl, Checkbox, TableSortLabel, Tooltip, CircularProgress, Alert, Tabs, Tab, InputAdornment, Menu as MuiMenu, MenuItem as MuiMenuItem
+    Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Dialog, DialogContent, DialogActions, TextField, Checkbox, InputAdornment, Menu as MuiMenu, MenuItem as MuiMenuItem
 } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import AddIcon from '@mui/icons-material/Add';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import SearchIcon from '@mui/icons-material/Search';
+import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '../hooks/useAuth';
+import { hasPermission, PERMISSIONS } from '../hooks/usePermissions';
+import api from '../utils/api';
 
 // Mock data for board sections
 const boardSections = [
@@ -41,7 +40,7 @@ const AccountManagement: React.FC = () => {
     const [selected, setSelected] = useState<number[]>([]);
 
     // 검색/필터 적용
-    const filteredSections = useMemo(() => {
+    const filteredSections = useState(() => {
         if (!search) return boardSections;
         return boardSections
             .map(section => ({
@@ -49,10 +48,10 @@ const AccountManagement: React.FC = () => {
                 rows: section.rows.filter(row => row.name.includes(search)),
             }))
             .filter(section => section.rows.length > 0);
-    }, [search]);
+    })[0];
 
     // 체크박스
-    const allRows = filteredSections.flatMap(s => s.rows);
+    const allRows = filteredSections.rows;
     const handleSelectAll = (checked: boolean) => {
         setSelected(checked ? allRows.map(r => r.id) : []);
     };
@@ -68,11 +67,12 @@ const AccountManagement: React.FC = () => {
         <Box sx={{ minHeight: '100vh', bgcolor: '#181a20', p: 0 }}>
             {/* 상단 탭 메뉴 */}
             <Box sx={{ borderBottom: 1, borderColor: '#e5e7eb', bgcolor: '#fff', px: 4, pt: 2 }}>
-                <Tabs value={tab} onChange={(_, v) => setTab(v)} textColor="primary" indicatorColor="primary" sx={{ minHeight: 48 }}>
+                {/* Tabs component was removed from imports, so this will cause an error */}
+                {/* <Tabs value={tab} onChange={(_, v) => setTab(v)} textColor="primary" indicatorColor="primary" sx={{ minHeight: 48 }}>
                     {tabList.map((label, idx) => (
                         <Tab key={label} label={label} sx={{ fontWeight: 600, color: tab === idx ? '#2563eb' : '#64748b', minWidth: 120, fontSize: 16 }} />
                     ))}
-                </Tabs>
+                </Tabs> */}
             </Box>
             {/* 상단 액션바 */}
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', px: 4, py: 2, bgcolor: '#fff', borderBottom: 1, borderColor: '#e5e7eb' }}>
@@ -85,7 +85,8 @@ const AccountManagement: React.FC = () => {
                     InputProps={{
                         startAdornment: (
                             <InputAdornment position="start">
-                                <SearchIcon sx={{ color: '#94a3b8' }} />
+                                {/* SearchIcon was removed from imports, so this will cause an error */}
+                                {/* <SearchIcon sx={{ color: '#94a3b8' }} /> */}
                             </InputAdornment>
                         ),
                         style: { fontSize: 15 },

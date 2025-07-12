@@ -86,7 +86,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
     }
   }, [loading, isAuthenticated, checkAuth]);
 
-  console.log('ProtectedRoute:', { isAuthenticated, loading, valid, hasChecked, pathname: location.pathname });
+  console.log('ProtectedRoute:', { isAuthenticated, loading, pathname: location.pathname });
 
   if (loading) {
     return <div>Loading...</div>;

@@ -120,7 +120,7 @@ export const detectDevTools = (): void => {
 
         if (
             !(heightThreshold && widthThreshold) &&
-            ((window.Firebug && window.Firebug.chrome && window.Firebug.chrome.isInitialized) || widthThreshold || heightThreshold)
+            ((window as any).Firebug && (window as any).Firebug.chrome && (window as any).Firebug.chrome.isInitialized) || widthThreshold || heightThreshold
         ) {
             if ((!devtools.open) || devtools.orientation !== orientation) {
                 emitEvent(true, orientation);
