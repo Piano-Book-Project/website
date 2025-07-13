@@ -25,7 +25,7 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const navigate = useNavigate();
     const location = useLocation();
     const [mini, setMini] = useState(false);
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
     const { canAccessMenu } = usePermissions();
 
     const drawerSpring = useSpring({
@@ -69,7 +69,8 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                         },
                     }}
                 >
-                    <Toolbar sx={{ minHeight: 48, justifyContent: mini ? 'center' : 'flex-end', px: 1 }}>
+                    {/* 사이드바 Drawer 내 Toolbar도 색상 통일 */}
+                    <Toolbar sx={{ minHeight: 48, justifyContent: mini ? 'center' : 'flex-end', px: 1, background: '#1d1f22', color: '#fff' }}>
                         <IconButton
                             onClick={() => setMini(!mini)}
                             size="small"
@@ -127,8 +128,8 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                         <ListItem disablePadding sx={{ borderRadius: 0 }}>
                             <ListItemButton
                                 onClick={() => {
-                                    // 로그아웃 로직 추가
-                                    console.log('로그아웃');
+                                    logout();
+                                    navigate('/login');
                                 }}
                                 sx={{
                                     borderRadius: 0,
@@ -169,15 +170,19 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 }}>
                     {/* 상단 헤더 */}
                     <animated.div style={headerSpring}>
-                        <AppBar position="fixed" sx={{
-                            bgcolor: '#141517',
-                            boxShadow: 'none',
-                            borderBottom: '1px solid #232427',
-                            zIndex: 1201,
-                            color: '#fff',
-                            borderRadius: 0
-                        }}>
-                            <Toolbar sx={{ minHeight: 64, display: 'flex', justifyContent: 'space-between', px: 4 }}>
+                        <AppBar
+                            position="fixed"
+                            elevation={0}
+                            sx={{
+                                zIndex: (theme) => theme.zIndex.drawer + 1,
+                                background: '#1d1f22',
+                                color: '#fff',
+                                boxShadow: 'none',
+                                borderBottom: '1px solid #232427',
+                                minHeight: 48
+                            }}
+                        >
+                            <Toolbar sx={{ minHeight: 48, background: '#1d1f22', color: '#fff', px: 2 }}>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                                     {/* 네이버 로고 */}
                                     <motion.div

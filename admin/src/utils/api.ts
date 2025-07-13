@@ -1,10 +1,30 @@
 import axios from 'axios';
 
+// 환경별 API 기본 URL 설정
+const getBaseURL = () => {
+    // 1. 환경변수 우선
+    if (import.meta.env.VITE_API_BASE_URL) {
+        return import.meta.env.VITE_API_BASE_URL;
+    }
+    if (window.location.hostname.endsWith('github.io')) {
+        // gh-pages 환경: 실제 백엔드 서버 주소로
+        return 'https://your-backend-domain.com/api';
+    }
+    if (process.env.NODE_ENV === 'production') {
+        // 프로덕션 환경에서는 실제 백엔드 서버 주소 사용
+        return 'https://your-backend-domain.com/api';
+    }
+    // 개발 환경에서는 Vite 프록시 사용
+    return '/api';
+};
+
 const api = axios.create({
-    baseURL: 'http://localhost:5173/api', // 명시적으로 프론트엔드 서버 주소 사용
+    baseURL: getBaseURL(),
     headers: {
         'Content-Type': 'application/json',
     },
+    timeout: 10000,
+    // retry, retryDelay 옵션 제거 (axios 기본 옵션 아님)
 });
 
 // JWT 토큰 자동 첨부
@@ -18,16 +38,18 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
-// 에러 핸들링 (필요시 확장)
+// axios 에러 응답 UX 개선
 api.interceptors.response.use(
-    (res) => {
-        console.log('API Response:', res.config.url, res.status, res.data);
-        return res;
-    },
-    (err) => {
-        console.error('API Error:', err.config?.url, err.response?.status, err.response?.data);
-        // 401 등 처리
-        return Promise.reject(err);
+    (response) => response,
+    (error) => {
+        if (error.response && error.response.data) {
+            // code/message 구조면 message만 추출
+            const { code, message } = error.response.data;
+            if (message) {
+                error.message = message;
+            }
+        }
+        return Promise.reject(error);
     }
 );
 

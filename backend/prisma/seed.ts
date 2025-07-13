@@ -11,6 +11,7 @@ async function main() {
         create: {
             username: 'admin',
             password,
+            nickname: '관리자',
         },
     });
     console.log('✅ Admin user created!');

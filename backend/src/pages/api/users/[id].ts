@@ -1,17 +1,128 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import type { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
-import { requireAnyPermission, PERMISSIONS } from '../../../utils/auth';
-import { securityHeaders, rateLimit, adminOnly, corsMiddleware } from '../../../utils/security';
+import { applySecurityMiddleware } from '../../../utils/security';
 
 const prisma = new PrismaClient();
 
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   get:
+ *     summary: 사용자 상세 조회
+ *     description: 특정 사용자의 상세 정보를 조회합니다.
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 사용자 ID
+ *     responses:
+ *       200:
+ *         description: 사용자 조회 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       404:
+ *         description: 사용자를 찾을 수 없음
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *   put:
+ *     summary: 사용자 정보 수정
+ *     description: 특정 사용자의 정보를 수정합니다.
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 사용자 ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 description: 로그인용 사용자명
+ *               nickname:
+ *                 type: string
+ *                 description: 표시용 닉네임
+ *               password:
+ *                 type: string
+ *                 description: 비밀번호 (선택사항)
+ *               role:
+ *                 type: string
+ *                 enum: [super_admin, admin, moderator, user]
+ *                 description: 사용자 권한
+ *     responses:
+ *       200:
+ *         description: 사용자 수정 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       400:
+ *         description: 잘못된 요청
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: 사용자를 찾을 수 없음
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *   delete:
+ *     summary: 사용자 삭제
+ *     description: 특정 사용자를 삭제합니다.
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 사용자 ID
+ *     responses:
+ *       200:
+ *         description: 사용자 삭제 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "User deleted successfully"
+ *       404:
+ *         description: 사용자를 찾을 수 없음
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 async function handler(req: NextApiRequest, res: NextApiResponse) {
     const { id } = req.query;
     const userId = parseInt(id as string);
 
     if (isNaN(userId)) {
-        return res.status(400).json({ error: 'Invalid user ID' });
+        return res.status(400).json({ code: 'INVALID_ID', message: 'Invalid user ID' });
     }
 
     if (req.method === 'GET') {
@@ -25,25 +136,25 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                     role: true,
                     lastLoginAt: true,
                     createdAt: true,
+                    updatedAt: true,
                 },
             });
 
             if (!user) {
-                return res.status(404).json({ error: 'User not found' });
+                return res.status(404).json({ code: 'NOT_FOUND', message: 'User not found' });
             }
 
-            res.status(200).json(user);
+            return res.status(200).json({ code: 'SUCCESS', data: user });
         } catch (error) {
             console.error('Error fetching user:', error);
-            res.status(500).json({ error: 'Failed to fetch user' });
+            return res.status(500).json({ code: 'SERVER_ERROR', message: 'Failed to fetch user', detail: error instanceof Error ? error.message : String(error) });
         }
     } else if (req.method === 'PUT') {
         try {
             const { username, nickname, password, role } = req.body;
 
-            // 필수 필드 검증
             if (!username || !nickname) {
-                return res.status(400).json({ error: 'Username and nickname are required' });
+                return res.status(400).json({ code: 'MISSING_FIELDS', message: 'Username and nickname are required' });
             }
 
             // 기존 사용자 확인
@@ -52,22 +163,34 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
             });
 
             if (!existingUser) {
-                return res.status(404).json({ error: 'User not found' });
+                return res.status(404).json({ code: 'NOT_FOUND', message: 'User not found' });
             }
 
-            // 업데이트할 데이터 준비
+            // 중복 사용자명 체크 (자신 제외)
+            if (username !== existingUser.username) {
+                const duplicateUser = await prisma.user.findUnique({
+                    where: { username },
+                });
+
+                if (duplicateUser) {
+                    return res.status(400).json({ code: 'USERNAME_EXISTS', message: 'Username already exists' });
+                }
+            }
+
             const updateData: any = {
                 username,
                 nickname,
-                role: role || existingUser.role,
+                // sysadmin 역할은 super_admin으로 저장
+                role: role === 'sysadmin' ? 'super_admin' : (role || existingUser.role),
             };
 
-            // 비밀번호가 제공된 경우에만 해시화하여 업데이트
-            if (password && password.trim() !== '') {
-                updateData.password = await bcrypt.hash(password, 12);
+            // 비밀번호가 제공된 경우에만 업데이트
+            if (password) {
+                const hashedPassword = await bcrypt.hash(password, 12);
+                updateData.password = hashedPassword;
             }
 
-            const updatedUser = await prisma.user.update({
+            const user = await prisma.user.update({
                 where: { id: userId },
                 data: updateData,
                 select: {
@@ -77,56 +200,37 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                     role: true,
                     lastLoginAt: true,
                     createdAt: true,
+                    updatedAt: true,
                 },
             });
 
-            res.status(200).json(updatedUser);
-        } catch (error: any) {
-            if (error.code === 'P2002') {
-                res.status(400).json({ error: 'Username already exists' });
-            } else {
-                console.error('Error updating user:', error);
-                res.status(500).json({ error: 'Failed to update user' });
-            }
+            return res.status(200).json({ code: 'SUCCESS', data: user });
+        } catch (error) {
+            console.error('Error updating user:', error);
+            return res.status(500).json({ code: 'SERVER_ERROR', message: 'Failed to update user', detail: error instanceof Error ? error.message : String(error) });
         }
     } else if (req.method === 'DELETE') {
         try {
-            // 기존 사용자 확인
-            const existingUser = await prisma.user.findUnique({
+            const user = await prisma.user.findUnique({
                 where: { id: userId },
             });
 
-            if (!existingUser) {
-                return res.status(404).json({ error: 'User not found' });
+            if (!user) {
+                return res.status(404).json({ code: 'NOT_FOUND', message: 'User not found' });
             }
 
-            // 사용자 삭제
             await prisma.user.delete({
                 where: { id: userId },
             });
 
-            res.status(200).json({ message: 'User deleted successfully' });
+            return res.status(200).json({ code: 'SUCCESS', message: 'User deleted successfully' });
         } catch (error) {
             console.error('Error deleting user:', error);
-            res.status(500).json({ error: 'Failed to delete user' });
+            return res.status(500).json({ code: 'SERVER_ERROR', message: 'Failed to delete user', detail: error instanceof Error ? error.message : String(error) });
         }
     } else {
-        res.setHeader('Allow', ['GET', 'PUT', 'DELETE']);
-        res.status(405).end(`Method ${req.method} Not Allowed`);
+        return res.status(405).json({ code: 'METHOD_NOT_ALLOWED', message: 'Method not allowed' });
     }
 }
 
-// 보안 미들웨어와 권한 체크를 적용한 핸들러 내보내기
-export default corsMiddleware(
-    securityHeaders(
-        rateLimit(
-            adminOnly(
-                requireAnyPermission([
-                    PERMISSIONS.USERS_READ,
-                    PERMISSIONS.USERS_UPDATE,
-                    PERMISSIONS.USERS_DELETE
-                ])(handler)
-            )
-        )
-    )
-); 
+export default applySecurityMiddleware(handler); 

@@ -4,8 +4,9 @@ import {
 } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../hooks/useAuth';
-import { hasPermission, PERMISSIONS } from '../hooks/usePermissions';
+import { usePermissions, PERMISSIONS } from '../hooks/usePermissions';
 import api from '../utils/api';
+import { MoreVert as MoreVertIcon } from '@mui/icons-material';
 
 // Mock data for board sections
 const boardSections = [
@@ -38,6 +39,7 @@ const AccountManagement: React.FC = () => {
     const [search, setSearch] = useState('');
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [selected, setSelected] = useState<number[]>([]);
+    const { hasPermission } = usePermissions();
 
     // 검색/필터 적용
     const filteredSections = useState(() => {
@@ -51,7 +53,7 @@ const AccountManagement: React.FC = () => {
     })[0];
 
     // 체크박스
-    const allRows = filteredSections.rows;
+    const allRows = filteredSections.flatMap(section => section.rows);
     const handleSelectAll = (checked: boolean) => {
         setSelected(checked ? allRows.map(r => r.id) : []);
     };
@@ -75,53 +77,57 @@ const AccountManagement: React.FC = () => {
                 </Tabs> */}
             </Box>
             {/* 상단 액션바 */}
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', px: 4, py: 2, bgcolor: '#fff', borderBottom: 1, borderColor: '#e5e7eb' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', px: 4, py: 2, bgcolor: '#181a20', borderBottom: 0 }}>
                 <TextField
                     size="small"
                     placeholder="게시판명 검색"
                     value={search}
                     onChange={e => setSearch(e.target.value)}
-                    sx={{ minWidth: 220, bgcolor: '#f8fafc', borderRadius: 2, mr: 2 }}
+                    sx={{
+                        minWidth: 220, bgcolor: '#232427', borderRadius: 1, mr: 2, color: '#fff',
+                        '& .MuiOutlinedInput-root': {
+                            borderRadius: 1,
+                            bgcolor: '#232427',
+                            color: '#fff',
+                            border: 'none',
+                            fontSize: 15,
+                        },
+                        '& .MuiInputBase-input': { color: '#fff' },
+                        '& .MuiInputLabel-root': { color: '#b6c2e1' }
+                    }}
                     InputProps={{
                         startAdornment: (
                             <InputAdornment position="start">
-                                {/* SearchIcon was removed from imports, so this will cause an error */}
-                                {/* <SearchIcon sx={{ color: '#94a3b8' }} /> */}
+                                <MoreVertIcon sx={{ color: '#60a5fa' }} />
                             </InputAdornment>
                         ),
                         style: { fontSize: 15 },
                     }}
                 />
-                <Button variant="outlined" sx={{ mr: 1, fontWeight: 600, color: '#334155', borderColor: '#cbd5e1', bgcolor: '#f8fafc', '&:hover': { bgcolor: '#f1f5f9' } }} onClick={handleMenuOpen} endIcon={<MoreVertIcon />}>
-                    더보기
-                </Button>
-                <MuiMenu anchorEl={anchorEl} open={!!anchorEl} onClose={handleMenuClose}>
-                    <MuiMenuItem onClick={handleMenuClose}>엑셀 다운로드</MuiMenuItem>
-                    <MuiMenuItem onClick={handleMenuClose}>설정</MuiMenuItem>
-                </MuiMenu>
-                <Button variant="contained" sx={{ fontWeight: 700, bgcolor: '#2563eb', color: '#fff', borderRadius: 2, boxShadow: 'none', ml: 1 }}>
+                <Button variant="contained" sx={{ fontWeight: 700, bgcolor: '#60a5fa', color: '#fff', borderRadius: 1, boxShadow: 'none', ml: 1, px: 3, py: 1.2, fontSize: 15, '&:hover': { bgcolor: '#3b82f6' } }}>
                     게시판 추가
                 </Button>
             </Box>
             {/* 게시판 테이블 */}
-            <Box sx={{ px: 4, py: 3, bgcolor: '#f8fafc', minHeight: 600 }}>
-                <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: '0 2px 12px 0 #1e293b11', overflow: 'visible' }}>
-                    <Table sx={{ minWidth: 900, bgcolor: '#fff' }}>
+            <Box sx={{ px: 4, py: 3, bgcolor: '#181a20', minHeight: 600 }}>
+                <TableContainer component={Paper} sx={{ borderRadius: 1, boxShadow: 'none', bgcolor: '#141517', border: '1px solid #232427', overflow: 'visible' }}>
+                    <Table sx={{ minWidth: 900, bgcolor: '#141517' }}>
                         <TableHead>
-                            <TableRow sx={{ borderBottom: 2, borderColor: '#e5e7eb' }}>
-                                <TableCell padding="checkbox" sx={{ width: 48 }}>
+                            <TableRow sx={{ background: '#232427' }}>
+                                <TableCell padding="checkbox" sx={{ width: 48, color: '#b6c2e1', fontWeight: 700, fontSize: 15, borderBottom: '1px solid #35373d' }}>
                                     <Checkbox
                                         color="primary"
                                         checked={selected.length === allRows.length && allRows.length > 0}
                                         indeterminate={selected.length > 0 && selected.length < allRows.length}
                                         onChange={e => handleSelectAll(e.target.checked)}
+                                        sx={{ color: '#60a5fa' }}
                                     />
                                 </TableCell>
-                                <TableCell sx={{ fontWeight: 700, color: '#334155', fontSize: 15 }}>게시판명</TableCell>
-                                <TableCell sx={{ fontWeight: 700, color: '#334155', fontSize: 15 }}>소유 도메인</TableCell>
-                                <TableCell sx={{ fontWeight: 700, color: '#334155', fontSize: 15 }}>게시글 수</TableCell>
-                                <TableCell sx={{ fontWeight: 700, color: '#334155', fontSize: 15 }}>권한</TableCell>
-                                <TableCell sx={{ fontWeight: 700, color: '#334155', fontSize: 15 }}>게시판 타입</TableCell>
+                                <TableCell sx={{ fontWeight: 700, color: '#b6c2e1', fontSize: 15, borderBottom: '1px solid #35373d' }}>게시판명</TableCell>
+                                <TableCell sx={{ fontWeight: 700, color: '#b6c2e1', fontSize: 15, borderBottom: '1px solid #35373d' }}>소유 도메인</TableCell>
+                                <TableCell sx={{ fontWeight: 700, color: '#b6c2e1', fontSize: 15, borderBottom: '1px solid #35373d' }}>게시글 수</TableCell>
+                                <TableCell sx={{ fontWeight: 700, color: '#b6c2e1', fontSize: 15, borderBottom: '1px solid #35373d' }}>권한</TableCell>
+                                <TableCell sx={{ fontWeight: 700, color: '#b6c2e1', fontSize: 15, borderBottom: '1px solid #35373d' }}>게시판 타입</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -133,19 +139,19 @@ const AccountManagement: React.FC = () => {
                                 </TableRow>
                             ) : (
                                 filteredSections.map(section => [
-                                    <TableRow key={section.label} sx={{ bgcolor: '#f1f5f9' }}>
-                                        <TableCell colSpan={6} sx={{ fontWeight: 700, color: '#2563eb', fontSize: 15, borderBottom: 'none', py: 2 }}>{section.label}</TableCell>
+                                    <TableRow key={section.label} sx={{ bgcolor: '#232427' }}>
+                                        <TableCell colSpan={6} sx={{ fontWeight: 700, color: '#60a5fa', fontSize: 15, borderBottom: 'none', py: 2, bgcolor: '#232427' }}>{section.label}</TableCell>
                                     </TableRow>,
                                     ...section.rows.map(row => (
-                                        <TableRow key={row.id} hover selected={selected.includes(row.id)} sx={{ '&:hover': { bgcolor: '#e0e7ff' } }}>
+                                        <TableRow key={row.id} hover selected={selected.includes(row.id)} sx={{ '&:hover': { bgcolor: '#232942' }, bgcolor: '#141517' }}>
                                             <TableCell padding="checkbox">
-                                                <Checkbox color="primary" checked={selected.includes(row.id)} onChange={() => handleSelect(row.id)} />
+                                                <Checkbox color="primary" checked={selected.includes(row.id)} onChange={() => handleSelect(row.id)} sx={{ color: '#60a5fa' }} />
                                             </TableCell>
-                                            <TableCell sx={{ color: '#222', fontWeight: 500 }}>{row.name}</TableCell>
-                                            <TableCell sx={{ color: '#64748b' }}>{row.owner}</TableCell>
-                                            <TableCell sx={{ color: '#64748b' }}>{row.count}</TableCell>
-                                            <TableCell sx={{ color: '#64748b' }}>{row.permission}</TableCell>
-                                            <TableCell sx={{ color: '#64748b' }}>{row.type}</TableCell>
+                                            <TableCell sx={{ color: '#fff', fontWeight: 500 }}>{row.name}</TableCell>
+                                            <TableCell sx={{ color: '#b6c2e1' }}>{row.owner}</TableCell>
+                                            <TableCell sx={{ color: '#b6c2e1' }}>{row.count}</TableCell>
+                                            <TableCell sx={{ color: '#b6c2e1' }}>{row.permission}</TableCell>
+                                            <TableCell sx={{ color: '#b6c2e1' }}>{row.type}</TableCell>
                                         </TableRow>
                                     ))
                                 ])

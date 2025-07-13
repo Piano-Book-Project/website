@@ -1,16 +1,51 @@
 {
+  "name": "piano-book-website",
+  "version": "1.0.0",
+  "description": "김츄츄의 피아노책 웹사이트 - 어드민 대시보드 및 백엔드 API",
+  "private": true,
+  "workspaces": [
+    "admin",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"yarn workspace backend dev\" \"yarn workspace admin dev\"",
+    "dev:admin": "yarn workspace admin dev",
+    "dev:backend": "yarn workspace backend dev",
+    "build": "yarn workspace backend build && yarn workspace admin build",
+    "build:admin": "yarn workspace admin build",
+    "build:backend": "yarn workspace backend build",
+    "start": "yarn workspace backend start",
+    "deploy": "yarn workspace admin deploy",
+    "test": "yarn workspace backend test && yarn workspace admin test",
+    "lint": "yarn workspace backend lint && yarn workspace admin lint",
+    "lint:fix": "yarn workspace backend lint:fix && yarn workspace admin lint:fix",
+    "db:generate": "yarn workspace backend prisma generate",
+    "db:migrate": "yarn workspace backend prisma migrate deploy",
+    "db:seed": "yarn workspace backend seed",
+    "prepare": "husky install",
+    "dev:all": "yarn --cwd admin dev:all",
+    "build:all": "yarn --cwd admin build:all",
+    "start:all": "yarn --cwd admin start:all"
+  },
   "devDependencies": {
     "@types/react": "^19.1.8",
     "@typescript-eslint/eslint-plugin": "^8.36.0",
     "@typescript-eslint/parser": "^8.36.0",
+    "concurrently": "^9.1.0",
     "eslint": "^9.30.1",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.2",
     "prettier": "^3.6.2"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "jsonwebtoken": "^9.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "yarn": ">=1.22.0"
   }
 }

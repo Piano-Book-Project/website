@@ -89,97 +89,107 @@ const UserAdd: React.FC = () => {
     };
 
     return (
-        <Box sx={{ p: 3 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                <IconButton onClick={() => navigate('/users')} sx={{ mr: 2 }}>
-                    <ArrowBackIcon />
-                </IconButton>
-                <Typography variant="h5" fontWeight={700}>
-                    사용자 추가
-                </Typography>
-            </Box>
-
-            <Paper sx={{ p: 4, maxWidth: 600 }}>
-                <form onSubmit={handleSubmit}>
+        <Box sx={{ minHeight: '100vh', bgcolor: '#181a20', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', p: 0 }}>
+            <Box sx={{ width: 400, borderRadius: 1, bgcolor: '#1d1f22', boxShadow: 'none', p: 0, border: '1px solid #232427', color: '#fff' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, pt: 3, px: 3 }}>
+                    <IconButton onClick={() => navigate('/users')} sx={{ mr: 1, color: '#b6c2e1' }}>
+                        <ArrowBackIcon />
+                    </IconButton>
+                    <Typography variant="h6" fontWeight={700} color="#60a5fa" sx={{ letterSpacing: -0.5 }}>
+                        사용자 추가
+                    </Typography>
+                </Box>
+                <Box component="form" onSubmit={handleSubmit} autoComplete="off" sx={{ display: 'flex', flexDirection: 'column', gap: 2, px: 3, pb: 3 }}>
                     <TextField
-                        fullWidth
-                        label="사용자 ID"
+                        label="사용자명"
                         value={formData.username}
                         onChange={handleInputChange('username')}
-                        margin="normal"
-                        required
-                        helperText="로그인에 사용할 고유한 ID를 입력하세요"
-                    />
-
-                    <TextField
                         fullWidth
+                        autoFocus
+                        required
+                        variant="standard"
+                        InputProps={{ disableUnderline: true, sx: { borderRadius: 1, bgcolor: '#232427', color: '#fff', px: 2, py: 1.2, fontSize: 16 } }}
+                        InputLabelProps={{ sx: { color: '#b6c2e1', fontSize: 15 } }}
+                    />
+                    <TextField
                         label="닉네임"
                         value={formData.nickname}
                         onChange={handleInputChange('nickname')}
-                        margin="normal"
-                        required
-                        helperText="표시될 이름을 입력하세요"
-                    />
-
-                    <TextField
                         fullWidth
+                        required
+                        variant="standard"
+                        InputProps={{ disableUnderline: true, sx: { borderRadius: 1, bgcolor: '#232427', color: '#fff', px: 2, py: 1.2, fontSize: 16 } }}
+                        InputLabelProps={{ sx: { color: '#b6c2e1', fontSize: 15 } }}
+                    />
+                    <TextField
                         label="비밀번호"
                         type={showPassword ? 'text' : 'password'}
                         value={formData.password}
                         onChange={handleInputChange('password')}
-                        margin="normal"
+                        fullWidth
                         required
+                        variant="standard"
                         InputProps={{
+                            disableUnderline: true,
+                            sx: { borderRadius: 1, bgcolor: '#232427', color: '#fff', px: 2, py: 1.2, fontSize: 16 },
                             endAdornment: (
                                 <InputAdornment position="end">
                                     <IconButton
                                         onClick={() => setShowPassword(!showPassword)}
                                         edge="end"
+                                        sx={{ color: '#60a5fa' }}
                                     >
                                         {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
                                     </IconButton>
                                 </InputAdornment>
                             ),
                         }}
-                        helperText="8자 이상의 안전한 비밀번호를 입력하세요"
+                        InputLabelProps={{ sx: { color: '#b6c2e1', fontSize: 15 } }}
                     />
-
-                    <FormControl fullWidth margin="normal">
-                        <InputLabel>권한</InputLabel>
-                        <Select
-                            value={formData.role}
-                            onChange={handleRoleChange}
-                            label="권한"
-                        >
-                            <MenuItem value="super_admin">Super Admin</MenuItem>
-                            <MenuItem value="admin">Admin</MenuItem>
-                            <MenuItem value="moderator">Moderator</MenuItem>
-                            <MenuItem value="user">User</MenuItem>
-                        </Select>
-                    </FormControl>
-
-                    <Box sx={{ display: 'flex', gap: 2, mt: 4 }}>
+                    <TextField
+                        select
+                        label="권한"
+                        value={formData.role}
+                        onChange={handleRoleChange}
+                        fullWidth
+                        required
+                        variant="standard"
+                        InputProps={{ disableUnderline: true, sx: { borderRadius: 1, bgcolor: '#232427', color: '#fff', px: 2, py: 1.2, fontSize: 16 } }}
+                        InputLabelProps={{ sx: { color: '#b6c2e1', fontSize: 15 } }}
+                    >
+                        <MenuItem value="super_admin">슈퍼 관리자</MenuItem>
+                        <MenuItem value="admin">관리자</MenuItem>
+                    </TextField>
+                    <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
                         <Button
                             type="submit"
                             variant="contained"
-                            size="large"
-                            disabled={createUserMutation.isPending}
-                            sx={{ flex: 1 }}
+                            disableElevation
+                            sx={{
+                                bgcolor: '#60a5fa',
+                                color: 'white',
+                                borderRadius: 1,
+                                fontWeight: 700,
+                                px: 3,
+                                fontSize: 15,
+                                boxShadow: 'none',
+                                flex: 1,
+                                '&:hover': { bgcolor: '#3b82f6' }
+                            }}
                         >
                             {createUserMutation.isPending ? '추가 중...' : '사용자 추가'}
                         </Button>
                         <Button
-                            variant="outlined"
-                            size="large"
+                            variant="text"
                             onClick={() => navigate('/users')}
-                            sx={{ flex: 1 }}
+                            sx={{ color: '#b6c2e1', borderRadius: 1, minWidth: 0, px: 2, fontWeight: 500, fontSize: 15, flex: 1 }}
+                            disableElevation
                         >
                             취소
                         </Button>
                     </Box>
-                </form>
-            </Paper>
-
+                </Box>
+            </Box>
             <Snackbar
                 open={snackbar.open}
                 autoHideDuration={6000}
@@ -188,7 +198,7 @@ const UserAdd: React.FC = () => {
                 <Alert
                     onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
                     severity={snackbar.severity}
-                    sx={{ width: '100%' }}
+                    sx={{ width: '100%', bgcolor: '#1d1f22', color: '#fff' }}
                 >
                     {snackbar.message}
                 </Alert>

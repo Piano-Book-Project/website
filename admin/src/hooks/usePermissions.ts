@@ -39,6 +39,10 @@ export const ROLE_PERMISSIONS = {
         // 모든 권한
         ...Object.values(PERMISSIONS)
     ],
+    sysadmin: [
+        // 슈퍼 관리자와 동일한 권한
+        ...Object.values(PERMISSIONS)
+    ],
     admin: [
         // 게시물 관리 - 조회, 글쓰기
         PERMISSIONS.POSTS_READ,

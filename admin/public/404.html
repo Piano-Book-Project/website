@@ -1,0 +1,24 @@
+<!-- 404.html for GitHub Pages SPA routing -->
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <script>
+        (function () {
+            var path = window.location.pathname;
+            // 정적 파일(js, css 등)은 리다이렉트하지 않음
+            if (!/\.(js|css|png|jpg|svg|ico|json|map|txt|woff2?)$/i.test(path)) {
+                var base = '/website'; // 실제 배포 base 경로
+                window.location.replace(base + '/index.html' + window.location.search + window.location.hash);
+            }
+        })();
+    </script>
+    <title>Redirecting...</title>
+</head>
+
+<body>
+    <p>Redirecting...</p>
+</body>
+
+</html>

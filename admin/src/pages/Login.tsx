@@ -41,19 +41,28 @@ const Login: React.FC = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password }),
             });
-            const data = await res.json();
-            if (!res.ok) {
-                // 영어 에러 메시지를 한글로 매핑
-                let msg = data.error || '로그인 실패';
+            let data;
+            try {
+                data = await res.json();
+            } catch {
+                data = {};
+            }
+            if (!res.ok || (data && data.code && data.code !== 'SUCCESS')) {
+                // code/message 구조 우선, fallback: 기존 메시지
+                let msg = data.message || data.error || '로그인 실패';
                 if (msg === 'Invalid credentials') msg = '아이디 또는 비밀번호가 올바르지 않습니다.';
                 if (msg === 'Username and password are required') msg = '아이디와 비밀번호를 모두 입력해 주세요.';
                 if (msg === 'Method not allowed') msg = '허용되지 않은 요청입니다.';
                 throw new Error(msg);
             }
-            localStorage.setItem('token', data.token);
-            window.location.href = '/dashboard';
+            if (data.token) {
+                localStorage.setItem('token', data.token);
+                window.location.href = '/dashboard';
+            } else {
+                throw new Error('로그인 토큰이 없습니다.');
+            }
         } catch (err: any) {
-            setError(err.message);
+            setError(err.message || '서버 오류 또는 네트워크 오류');
         } finally {
             setLoading(false);
         }

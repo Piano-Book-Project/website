@@ -1,9 +1,14 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
+// gh-pages 환경 base 경로 자동 설정
+const isGhPages = process.env.NODE_ENV === 'production' && process.env.GITHUB_PAGES === 'true';
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  // GitHub Pages 배포를 위한 base URL 설정
+  base: isGhPages ? '/website/' : '/',
   server: {
     port: 5173,
     host: 'localhost',
@@ -35,11 +40,18 @@ export default defineConfig({
   },
   // 빌드 설정
   build: {
+    outDir: 'dist',
     // 소스맵 비활성화 (보안상)
     sourcemap: false,
     // 청크 크기 경고 임계값
     chunkSizeWarningLimit: 1000,
+    // 빌드 최적화
+    minify: 'esbuild',
     rollupOptions: {
+      input: {
+        main: 'index.html',
+        ...(isGhPages && { '404': 'index.html' })
+      },
       output: {
         // 청크 파일명 설정
         manualChunks: {
@@ -48,11 +60,19 @@ export default defineConfig({
           router: ['react-router-dom'],
           query: ['@tanstack/react-query'],
         },
+        // 청크 파일명 해시 제거 (GitHub Pages 캐싱 문제 해결)
+        chunkFileNames: 'assets/[name].js',
+        entryFileNames: 'assets/[name].js',
+        assetFileNames: 'assets/[name].[ext]',
       },
     },
   },
   // 환경 변수 설정
   define: {
     __DEV__: process.env.NODE_ENV === 'development',
+  },
+  // 최적화 설정
+  optimizeDeps: {
+    include: ['react', 'react-dom', '@mui/material', '@mui/icons-material'],
   },
 })
