@@ -1,0 +1,83 @@
+// Prisma schema file
+// 음악 재생 웹사이트용 샘플 DB 스키마
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique // ex: sysadmin
+  password     String
+  nickname     String
+  createdAt    DateTime @default(now())
+  lastLoginAt  DateTime?
+  permissions  Permission[]
+  menuAccess   MenuAccess[]
+}
+
+model Permission {
+  id           Int      @id @default(autoincrement())
+  admin        Admin    @relation(fields: [adminId], references: [id])
+  adminId      Int
+  canEditPost  Boolean  @default(false)
+  canDeletePost Boolean @default(false)
+  canAddPost   Boolean  @default(false)
+}
+
+model MenuAccess {
+  id        Int    @id @default(autoincrement())
+  admin     Admin  @relation(fields: [adminId], references: [id])
+  adminId   Int
+  menuName  String
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique // ex: test01
+  password     String
+  nickname     String
+  createdAt    DateTime @default(now())
+  lastLoginAt  DateTime?
+  playHistory  Playlist[]
+}
+
+model Playlist {
+  id         Int      @id @default(autoincrement())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     Int
+  artist     Artist   @relation("ArtistPlaylists", fields: [artistId], references: [id])
+  artistId   Int
+  song       Song     @relation("SongPlaylists", fields: [songId], references: [id])
+  songId     Int
+  isFavorite Boolean  @default(false)
+  playedAt   DateTime @default(now())
+}
+
+model Artist {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  imageUrl    String?
+  songs       Song[]
+  playlists   Playlist[] @relation("ArtistPlaylists")
+}
+
+model Song {
+  id            Int      @id @default(autoincrement())
+  title         String
+  description   String?
+  imageUrl      String?
+  youtubeUrl    String?
+  hasImage      Boolean  @default(false)
+  hasAttachment Boolean  @default(false)
+  pdfUrl        String?
+  artist        Artist   @relation(fields: [artistId], references: [id])
+  artistId      Int
+  playlists     Playlist[] @relation("SongPlaylists")
+} 
