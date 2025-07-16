@@ -2,11 +2,11 @@
 import React, { useState, useRef } from 'react';
 
 // Heroicons ChevronDown SVG
-const ChevronDownIcon = (
-  <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-    <path stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/>
-  </svg>
-);
+// const ChevronDownIcon = (
+//   <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+//     <path stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/>
+//   </svg>
+// );
 
 const LOGO_URL = 'https://ssl.pstatic.net/static/nng/glive/resource/p/static/media/logo_light.530b4d8f04d5671f2465.gif';
 
