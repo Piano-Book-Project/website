@@ -19,6 +19,7 @@ model Admin {
   lastLoginAt  DateTime?
   permissions  Permission[]
   menuAccess   MenuAccess[]
+  refreshToken String? // JWT refresh token (optional)
 }
 
 model Permission {

@@ -28,10 +28,8 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
   min-height: 100vh;
+  /* 기존의 display: flex, place-items: center 제거하여 메인페이지가 전체 화면 사용 */
 }
 
 h1 {
