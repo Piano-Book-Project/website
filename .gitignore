@@ -1,0 +1,14 @@
+node_modules/
+.next/
+dist/
+.turbo/
+.env
+.env.*
+.DS_Store
+*.log
+*.sqlite
+*.db
+*.local
+*.cache
+output/
+coverage/ 
