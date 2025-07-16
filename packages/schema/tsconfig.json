@@ -4,7 +4,7 @@
     "module": "ESNext",
     "lib": ["ESNext"],
     "moduleResolution": "Node",
-    "rootDir": "src",
+    "rootDir": "../..",
     "outDir": "dist",
     "esModuleInterop": true,
     "resolveJsonModule": true,
@@ -15,5 +15,6 @@
     "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
-  }
+  },
+  "include": ["src", "../../apps/admin/src/server/routers"]
 }

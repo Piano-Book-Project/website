@@ -1,8 +1,4 @@
 // Barrel export for user feature
-export * from './components';
-export * from './hooks';
-export * from './api';
-export * from './services';
-export * from './stores';
+// 존재하지 않는 모듈 export 구문 삭제
 export * from './types';
 export * from './utils'; 

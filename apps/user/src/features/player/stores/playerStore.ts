@@ -18,7 +18,7 @@ const defaultSong: Song = {
 };
 
 // 플레이어 상태 및 액션을 관리하는 Zustand store
-export const usePlayerStore = create<PlayerState & PlayerActions>((set, get) => ({
+export const usePlayerStore = create<PlayerState & PlayerActions>((set) => ({
   // 초기 상태
   currentSong: defaultSong,
   isPlaying: false,
