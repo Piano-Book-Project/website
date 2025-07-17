@@ -29,4 +29,4 @@ export interface PlayerActions {
   pause: () => void;
   next: () => void;
   previous: () => void;
-} 
+}

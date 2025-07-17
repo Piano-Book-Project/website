@@ -32,7 +32,7 @@ describe('PlayerBar', () => {
 
   test('renders song information correctly', () => {
     render(<PlayerBar />);
-    
+
     expect(screen.getByText('tr(Ever)')).toBeInTheDocument();
     expect(screen.getByText('Hebl')).toBeInTheDocument();
     expect(screen.getByText('CHU PIANO')).toBeInTheDocument();
@@ -55,8 +55,8 @@ describe('PlayerBar', () => {
     });
 
     render(<PlayerBar />);
-    
+
     expect(screen.getByText('No song selected')).toBeInTheDocument();
     expect(screen.getByText('CHU PIANO')).toBeInTheDocument();
   });
-}); 
+});

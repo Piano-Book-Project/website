@@ -17,4 +17,4 @@ features/
 ```
 
 - 각 feature 폴더 안에 해당 도메인 관련 컴포넌트, 훅, API, 타입 등을 배치하세요.
-- 전역/공통 컴포넌트는 src/components, 전역 훅은 src/hooks에 두세요. 
+- 전역/공통 컴포넌트는 src/components, 전역 훅은 src/hooks에 두세요.

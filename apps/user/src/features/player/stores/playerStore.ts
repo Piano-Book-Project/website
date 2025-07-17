@@ -30,17 +30,17 @@ export const usePlayerStore = create<PlayerState & PlayerActions>((set) => ({
   setIsPlaying: (isPlaying) => set({ isPlaying }),
   setVolume: (volume) => set({ volume }),
   setCurrentTime: (currentTime) => set({ currentTime }),
-  
+
   play: () => set({ isPlaying: true }),
   pause: () => set({ isPlaying: false }),
-  
+
   next: () => {
     // TODO: 다음 곡 로직 (플레이리스트에서 다음 곡으로)
     console.log('Next song');
   },
-  
+
   previous: () => {
     // TODO: 이전 곡 로직 (플레이리스트에서 이전 곡으로)
     console.log('Previous song');
   },
-})); 
+}));

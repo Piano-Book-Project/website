@@ -15,4 +15,4 @@ export default function handler(req, res) {
     router: appRouter,
     createContext: () => ({}),
   })(req, res);
-} 
+}

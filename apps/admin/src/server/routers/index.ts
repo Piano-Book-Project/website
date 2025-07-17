@@ -17,4 +17,4 @@ export const appRouter = router({
   song: songRouter,
 });
 
-export type AppRouter = typeof appRouter; 
+export type AppRouter = typeof appRouter;

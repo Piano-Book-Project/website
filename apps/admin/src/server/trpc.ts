@@ -7,9 +7,11 @@ const t = initTRPC.create();
 const loggingMiddleware = t.middleware(async ({ path, type, next, input }) => {
   logger.info(`[${type}] ${path} - input: ${JSON.stringify(input)}`);
   const result = await next();
-  logger.info(`[${type}] ${path} - result: ${JSON.stringify(result?.ok ? result.data : result.error)}`);
+  logger.info(
+    `[${type}] ${path} - result: ${JSON.stringify(result?.ok ? result.data : result.error)}`,
+  );
   return result;
 });
 
 export const router = t.router;
-export const procedure = t.procedure.use(loggingMiddleware); 
+export const procedure = t.procedure.use(loggingMiddleware);

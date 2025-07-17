@@ -20,6 +20,7 @@ features/player/
 ## 주요 기능
 
 ### PlayerBar 컴포넌트
+
 - 하단에 고정된 플레이바 UI
 - 아티스트명, 곡 제목, 앨범 이미지 표시
 - 재생/일시정지 컨트롤
@@ -28,6 +29,7 @@ features/player/
 - 하단 "CHU PIANO" 하드코딩
 
 ### Player Store (Zustand)
+
 - 선택된 곡 정보 관리
 - 재생 상태 (isPlaying)
 - 볼륨, 현재 시간 등
@@ -40,7 +42,7 @@ import PlayerBar from './features/player/components/PlayerBar';
 import { usePlayerStore } from './features/player/stores/playerStore';
 
 // App.tsx에서 하단 고정
-<PlayerBar />
+<PlayerBar />;
 
 // 다른 컴포넌트에서 플레이어 상태 사용
 const { currentSong, play, pause } = usePlayerStore();
@@ -62,7 +64,7 @@ const { currentSong, play, pause } = usePlayerStore();
 ```tsx
 // 예시: tRPC 연동
 const { data: songs } = useQuery(['songs'], () => trpc.songs.getAll());
-const { mutate: setCurrentSong } = useMutation((songId: string) => 
-  trpc.player.setCurrentSong.mutate({ songId })
+const { mutate: setCurrentSong } = useMutation((songId: string) =>
+  trpc.player.setCurrentSong.mutate({ songId }),
 );
-``` 
+```

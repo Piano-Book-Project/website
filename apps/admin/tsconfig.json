@@ -2,12 +2,9 @@
   "compilerOptions": {
     "target": "ES2021",
     "module": "ESNext",
-    "lib": [
-      "ESNext",
-      "DOM"
-    ],
+    "lib": ["ESNext", "DOM"],
     "moduleResolution": "Node",
-    "rootDir": "src",
+    "rootDir": ".",
     "outDir": "dist",
     "esModuleInterop": true,
     "resolveJsonModule": true,
@@ -28,12 +25,6 @@
       }
     ]
   },
-  "include": [
-    "src/app/**/*",
-    "src/components/**/*",
-    ".next/types/**/*.ts"
-  ],
-  "exclude": [
-    "dist"
-  ]
+  "include": ["src/app/**/*", "src/components/**/*", ".next/types/**/*.ts"],
+  "exclude": ["dist"]
 }
