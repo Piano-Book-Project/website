@@ -52,6 +52,8 @@
   },
   "dependencies": {
     "prisma": "^6.12.0",
+    "react-icons": "^5.5.0",
+    "react-youtube": "^10.1.0",
     "sass": "^1.89.2"
   }
 }
