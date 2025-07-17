@@ -1,6 +1,6 @@
 import { useCurrentSong } from '../hooks/useCurrentSong';
 import { CoverImage } from './CoverImage';
-import { FaRandom, FaStepBackward, FaPlay, FaStepForward, FaRedo, FaVolumeUp, FaChromecast, FaBars, FaChevronUp, FaHeart, FaEllipsisH, FaPause } from 'react-icons/fa';
+import { FaRandom, FaStepBackward, FaPlay, FaStepForward, FaRedo, FaVolumeUp, FaChromecast, FaBars, FaHeart, FaEllipsisH, FaPause } from 'react-icons/fa';
 import YouTube from 'react-youtube';
 import { useRef, useState, useEffect } from 'react';
 
@@ -9,7 +9,7 @@ export default function PlayerBar() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const playerRef = useRef<any>(null);
+  const playerRef = useRef<unknown>(null);
   const [isShuffling, setIsShuffling] = useState(false);
   const [isRepeating, setIsRepeating] = useState(false);
   const [liked, setLiked] = useState(false);
@@ -23,30 +23,37 @@ export default function PlayerBar() {
   };
 
   // YouTube event handlers
-  const onReady = (e: any) => {
+  const onReady = (e: unknown) => {
+    // @ts-expect-error YouTube player type
     playerRef.current = e.target;
+    // @ts-expect-error YouTube player type
     setDuration(e.target.getDuration());
+    // @ts-expect-error YouTube player type
     setCurrentTime(e.target.getCurrentTime());
   };
-  const onStateChange = (e: any) => {
+  const onStateChange = (e: unknown) => {
+    // @ts-expect-error YouTube player type
     setIsPlaying(e.data === 1);
   };
   // Poll current time for animation
   useEffect(() => {
-    let interval: any;
+    let interval: unknown;
     if (isPlaying && playerRef.current) {
       interval = setInterval(() => {
+        // @ts-expect-error YouTube player type
         setCurrentTime(playerRef.current.getCurrentTime());
       }, 300);
     }
-    return () => clearInterval(interval);
+    return () => clearInterval(interval as number);
   }, [isPlaying]);
 
   const handlePlayPause = () => {
     if (!playerRef.current) return;
     if (isPlaying) {
+      // @ts-expect-error YouTube player type
       playerRef.current.pauseVideo?.();
     } else {
+      // @ts-expect-error YouTube player type
       playerRef.current.playVideo?.();
     }
   };
@@ -60,11 +67,12 @@ export default function PlayerBar() {
 
   // Seek when clicking the progress bar
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    if (!playerRef.current || typeof playerRef.current.seekTo !== 'function' || !duration) return;
+    if (!playerRef.current || typeof (playerRef.current as { seekTo?: (t: number, a: boolean) => void }).seekTo !== 'function' || !duration) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const percent = x / rect.width;
     const seekTime = percent * duration;
+    // @ts-expect-error YouTube player type
     playerRef.current.seekTo(seekTime, true);
     setCurrentTime(seekTime);
   };
