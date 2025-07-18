@@ -51,6 +51,9 @@
     "zod": "^4.0.5"
   },
   "dependencies": {
+    "@sentry/nextjs": "^9.39.0",
+    "@sentry/react": "^9.39.0",
+    "@sentry/tracing": "^7.120.3",
     "prisma": "^6.12.0",
     "react-icons": "^5.5.0",
     "react-youtube": "^10.1.0",

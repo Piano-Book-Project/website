@@ -1,4 +1,8 @@
 {
+  "rewrites": [
+    { "source": "/admin(/.*)?", "destination": "/apps/admin$1" },
+    { "source": "/(.*)", "destination": "/apps/user/$1" }
+  ],
   "build": {
     "env": {
       "NPM_CONFIG_LEGACY_PEER_DEPS": "true"
