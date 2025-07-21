@@ -5,14 +5,6 @@ export interface Artist {
   image?: string;
 }
 
-export interface Song {
-  id: string;
-  title: string;
-  artist: Artist;
-  image?: string;
-  duration?: number;
-}
-
 export interface PlayerState {
   currentSong: Song | null;
   isPlaying: boolean;
@@ -29,4 +21,12 @@ export interface PlayerActions {
   pause: () => void;
   next: () => void;
   previous: () => void;
+}
+
+export interface Song {
+  id: string;
+  title: string;
+  artist: Artist;
+  image?: string;
+  duration?: number;
 }

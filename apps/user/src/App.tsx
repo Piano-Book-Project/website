@@ -1,3 +1,4 @@
+import React from 'react';
 import PlayerBar from './features/player/components/PlayerBar';
 
 function App() {

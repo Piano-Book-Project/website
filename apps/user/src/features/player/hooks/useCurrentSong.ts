@@ -1,4 +1,7 @@
-import { trpc } from '../../../lib/trpc';
+import { createTRPCReact } from '@trpc/react-query';
+import type { AppRouter } from 'schema/src/trpc';
+
+const trpc = createTRPCReact<AppRouter>();
 
 export function useCurrentSong(songId: number = 1) {
   // tRPC 쿼리: song.get({ id })

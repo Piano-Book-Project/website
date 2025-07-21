@@ -1,3 +1,5 @@
+import React from 'react';
+
 export default function Dashboard() {
   return (
     <div style={{ color: '#fff', fontSize: 32, padding: 40 }}>

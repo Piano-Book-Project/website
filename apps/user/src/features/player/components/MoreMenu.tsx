@@ -1,3 +1,5 @@
+import React from 'react';
+
 export function MoreMenu() {
   return (
     <button className="more-menu">
@@ -8,4 +10,4 @@ export function MoreMenu() {
       </svg>
     </button>
   );
-} 
+}

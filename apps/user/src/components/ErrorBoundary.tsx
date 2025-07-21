@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import React from 'react';
 import type { ReactNode } from 'react';
 import { logError } from '../utils/logger';
 
@@ -10,7 +10,7 @@ interface State {
   hasError: boolean;
 }
 
-class ErrorBoundary extends Component<Props, State> {
+class ErrorBoundary extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = { hasError: false };

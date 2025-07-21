@@ -25,6 +25,6 @@
       }
     ]
   },
-  "include": ["src/app/**/*", "src/components/**/*", ".next/types/**/*.ts"],
+  "include": ["src/**/*", ".next/types/**/*.ts"],
   "exclude": ["dist"]
 }

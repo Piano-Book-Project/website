@@ -1,11 +1,11 @@
 import { router } from '../trpc';
 import { adminRouter } from './admin';
-import { permissionRouter } from './permission';
-import { menuAccessRouter } from './menuAccess';
-import { userRouter } from './user';
-import { playlistRouter } from './playlist';
 import { artistRouter } from './artist';
+import { menuAccessRouter } from './menuAccess';
+import { permissionRouter } from './permission';
+import { playlistRouter } from './playlist';
 import { songRouter } from './song';
+import { userRouter } from './user';
 
 export const appRouter = router({
   admin: adminRouter,

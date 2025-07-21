@@ -1,7 +1,7 @@
+import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import prisma from '../prisma';
 import { router, procedure } from '../trpc';
-import { TRPCError } from '@trpc/server';
 
 export const artistRouter = router({
   create: procedure

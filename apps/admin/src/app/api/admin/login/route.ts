@@ -1,6 +1,6 @@
+import jwt from 'jsonwebtoken';
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '../../../../server/prisma';
-import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = 'your-very-secret-key';
 const REFRESH_SECRET = 'your-very-refresh-secret';

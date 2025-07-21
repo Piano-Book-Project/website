@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  const admin = await prisma.admin.upsert({
+  await prisma.admin.upsert({
     where: { username: 'sysadmin' },
     update: {},
     create: {
@@ -12,12 +12,12 @@ async function main() {
       nickname: '백살이',
     },
   });
-  console.log('Admin user created or already exists:', admin);
+  // console.log('Admin user created or already exists:', admin);
 }
 
 main()
-  .catch((e) => {
-    console.error(e);
+  .catch(() => {
+    // console.error(e);
     process.exit(1);
   })
   .finally(async () => {

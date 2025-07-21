@@ -1,7 +1,8 @@
 import { createNextApiHandler } from '@trpc/server/adapters/next';
+import type { NextApiRequest, NextApiResponse } from 'next';
 import { appRouter } from '../../../server/routers';
 
-export default function handler(req, res) {
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5174');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');

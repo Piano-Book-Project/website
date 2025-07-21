@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 const MusicIcon = () => (
   <svg className="cover-image__placeholder" fill="currentColor" viewBox="0 0 20 20">
