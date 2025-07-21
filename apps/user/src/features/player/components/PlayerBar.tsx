@@ -1,18 +1,33 @@
-import { useCurrentSong } from '../hooks/useCurrentSong';
+import { trpc } from '../../../lib/trpc';
 import { CoverImage } from './CoverImage';
 import { FaRandom, FaStepBackward, FaPlay, FaStepForward, FaRedo, FaVolumeUp, FaChromecast, FaBars, FaHeart, FaEllipsisH, FaPause } from 'react-icons/fa';
-import YouTube, { YouTubePlayer } from 'react-youtube';
+import YouTube from 'react-youtube';
 import { useRef, useState, useEffect } from 'react';
 
 export default function PlayerBar() {
-  const { data, isLoading, error } = useCurrentSong(1);
+  const userId = 1; // 실제 로그인 유저로 대체 가능
+  const { data: initialSong, isLoading, error } = trpc.song.get.useQuery({ id: 1 });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [currentSong, setCurrentSong] = useState<any | null>(null);
+  const nextSongQuery = trpc.playlist.next.useQuery(
+    { userId, currentSongId: currentSong?.id ?? 1 },
+    { enabled: false }
+  );
+  const prevSongQuery = trpc.playlist.prev.useQuery(
+    { userId, currentSongId: currentSong?.id ?? 1 },
+    { enabled: false }
+  );
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const playerRef = useRef<YouTubePlayer | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const playerRef = useRef<any | null>(null);
   const [isShuffling, setIsShuffling] = useState(false);
   const [isRepeating, setIsRepeating] = useState(false);
   const [liked, setLiked] = useState(false);
+  const [volume, setVolume] = useState(100);
+  const [showVolumeBar, setShowVolumeBar] = useState(false);
+  const volumeBarRef = useRef<HTMLDivElement>(null);
 
   const formatTime = (s: number) => {
     if (!s || isNaN(s)) return '0:00';
@@ -21,7 +36,8 @@ export default function PlayerBar() {
     return `${m}:${sec}`;
   };
 
-  const onReady = (e: { target: YouTubePlayer }) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const onReady = (e: { target: any }) => {
     playerRef.current = e.target;
     setDuration(e.target.getDuration());
     setCurrentTime(e.target.getCurrentTime());
@@ -64,14 +80,58 @@ export default function PlayerBar() {
     setCurrentTime(seekTime);
   };
 
-  if (isLoading) {
+
+  useEffect(() => {
+    if (playerRef.current) {
+      playerRef.current.setVolume?.(volume);
+    }
+  }, [volume]);
+
+  useEffect(() => {
+    if (!showVolumeBar) return;
+    const handleClick = (e: MouseEvent) => {
+      if (volumeBarRef.current && !volumeBarRef.current.contains(e.target as Node)) {
+        setShowVolumeBar(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [showVolumeBar]);
+
+  useEffect(() => {
+    if (initialSong) setCurrentSong(initialSong);
+  }, [initialSong]);
+
+  const handleNext = async () => {
+    if (!currentSong) return;
+    try {
+      const { data: next } = await nextSongQuery.refetch();
+      if (next) setCurrentSong(next);
+      else setCurrentSong(currentSong); // 다음 곡 없으면 현재 곡 반복
+    } catch {
+      setCurrentSong(currentSong); // 에러 시 현재 곡 반복
+    }
+  };
+
+  const handlePrev = async () => {
+    if (!currentSong) return;
+    try {
+      const { data: prev } = await prevSongQuery.refetch();
+      if (prev) setCurrentSong(prev);
+      else setCurrentSong(currentSong); // 이전 곡 없으면 현재 곡 반복
+    } catch {
+      setCurrentSong(currentSong); // 에러 시 현재 곡 반복
+    }
+  };
+
+  if (isLoading || !currentSong) {
     return (
-      <div className="player-bar" style={{ height: 65 }}>
+      <div className="player-bar player-bar-loading" style={{ height: 65 }}>
         Loading...
       </div>
     );
   }
-  if (error || !data) {
+  if (error) {
     return (
       <div className="player-bar" style={{ height: 65 }}>
         <span className="text-red-400">No song found</span>
@@ -79,22 +139,32 @@ export default function PlayerBar() {
     );
   }
 
+  const videoId = getYoutubeId(typeof currentSong.youtubeUrl === 'string' ? currentSong.youtubeUrl : undefined);
+
   return (
     <nav className="player-bar" aria-label="Music Player Controls">
-      <div style={{ position: 'absolute', left: -9999, width: 0, height: 0 }}>
+      <div className="youtube-hidden">
         <YouTube
-          videoId={getYoutubeId(typeof data.youtubeUrl === 'string' ? data.youtubeUrl : undefined)}
-          opts={{ height: '0', width: '0', playerVars: { controls: 0 } }}
+          videoId={videoId}
+          opts={{
+            height: '0',
+            width: '0',
+            playerVars: {
+              controls: 0,
+              loop: isRepeating ? 1 : 0,
+              playlist: isRepeating ? videoId : undefined,
+            },
+          }}
           onReady={onReady}
           onStateChange={onStateChange}
         />
       </div>
       <div className="player-bar__main">
         <div className="player-bar__info-group">
-          <CoverImage src={data.imageUrl ?? undefined} alt={data.title ?? undefined} />
+          <CoverImage src={currentSong.imageUrl ?? undefined} alt={currentSong.title ?? undefined} />
           <div className="player-bar__info-text">
             <div className="player-bar__title-row">
-              <span className="player-bar__title">{data.title ?? 'Unknown'}</span>
+              <span className="player-bar__title">{currentSong.title ?? 'Unknown'}</span>
               <button
                 className="player-bar__icon-small player-bar__a11y-btn"
                 aria-label={liked ? 'Remove from favorites' : 'Add to favorites'}
@@ -112,8 +182,8 @@ export default function PlayerBar() {
                 <span className="sr-only">More options</span>
               </button>
             </div>
-            <div className="player-bar__artist">{data.artist?.name ?? 'Unknown Artist'}</div>
-            <div className="player-bar__source">PLAI<span style={{letterSpacing:0}}>N</span>G FROM: COEXIST</div>
+            <div className="player-bar__artist">{currentSong.artist?.name ?? 'Unknown Artist'}</div>
+            <div className="player-bar__source">PLAI<span style={{letterSpacing:0}}>N</span>G FROM: CHU PIANO</div>
           </div>
         </div>
         <div className="player-bar__center">
@@ -130,7 +200,7 @@ export default function PlayerBar() {
               <FaRandom />
               <span className="sr-only">{isShuffling ? 'Disable shuffle' : 'Enable shuffle'}</span>
             </button>
-            <button className="player-bar__icon player-bar__a11y-btn" aria-label="Previous" tabIndex={0} type="button">
+            <button className="player-bar__icon player-bar__a11y-btn" aria-label="Previous" tabIndex={0} type="button" onClick={handlePrev}>
               <FaStepBackward />
               <span className="sr-only">Previous</span>
             </button>
@@ -146,7 +216,7 @@ export default function PlayerBar() {
               {isPlaying ? <FaPause /> : <FaPlay />}
               <span className="sr-only">{isPlaying ? 'Pause' : 'Play'}</span>
             </button>
-            <button className="player-bar__icon player-bar__a11y-btn" aria-label="Next" tabIndex={0} type="button">
+            <button className="player-bar__icon player-bar__a11y-btn" aria-label="Next" tabIndex={0} type="button" onClick={handleNext}>
               <FaStepForward />
               <span className="sr-only">Next</span>
             </button>
@@ -159,11 +229,11 @@ export default function PlayerBar() {
               onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && setIsRepeating((v) => !v)}
               type="button"
             >
-              <FaRedo />
+              <FaRedo style={{ color: isRepeating ? '#EF2F62' : undefined }} />
               <span className="sr-only">{isRepeating ? 'Disable repeat' : 'Enable repeat'}</span>
             </button>
           </div>
-          <div className="player-bar__progress-section" style={{ paddingTop: 8 }}>
+          <div className="player-bar__progress-section progress-section-pt8">
             <div className="player-bar__progress-time">{formatTime(currentTime)}</div>
             <div className="player-bar__progress-bar-wrapper">
               <div
@@ -199,10 +269,40 @@ export default function PlayerBar() {
           </div>
         </div>
         <div className="player-bar__right" role="group" aria-label="Other controls">
-          <button className="player-bar__icon player-bar__a11y-btn" aria-label="Volume" tabIndex={0} type="button">
-            <FaVolumeUp />
-            <span className="sr-only">Volume</span>
-          </button>
+          {/* 볼륨 버튼+게이지바 (반응형에서 player-bar__right가 숨겨질 때도 보이게) */}
+          <div className="volume-btn-wrapper">
+            <button
+              className="player-bar__icon player-bar__a11y-btn"
+              aria-label="Volume"
+              tabIndex={0}
+              type="button"
+              onClick={() => setShowVolumeBar(v => !v)}
+            >
+              <FaVolumeUp />
+              <span className="sr-only">Volume</span>
+            </button>
+            {showVolumeBar && (
+              <div
+                ref={volumeBarRef}
+                className="volume-bar-floating"
+                // position: absolute, bottom: 120% (SCSS에서 적용)
+              >
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={volume}
+                  onChange={e => {
+                    const v = Number(e.target.value);
+                    setVolume(v);
+                    playerRef.current?.setVolume?.(v);
+                  }}
+                  className="volume-bar-vertical"
+                />
+                <span className="volume-bar-label">{volume}</span>
+              </div>
+            )}
+          </div>
           <button className="player-bar__icon player-bar__a11y-btn" aria-label="Cast to device" tabIndex={0} type="button">
             <FaChromecast />
             <span className="sr-only">Cast to device</span>
