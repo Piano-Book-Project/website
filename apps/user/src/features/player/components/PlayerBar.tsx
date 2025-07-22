@@ -1,5 +1,5 @@
 import { createTRPCReact } from '@trpc/react-query';
-import React, { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import {
   FaRandom,
   FaStepBackward,
@@ -7,6 +7,7 @@ import {
   FaStepForward,
   FaRedo,
   FaVolumeUp,
+  FaVolumeMute,
   FaChromecast,
   FaBars,
   FaHeart,
@@ -43,6 +44,12 @@ export default function PlayerBar() {
   const [volume, setVolume] = useState(100);
   const [showVolumeBar, setShowVolumeBar] = useState(false);
   const volumeBarRef = useRef<HTMLDivElement>(null);
+  const volumeBtnRef = useRef<HTMLButtonElement>(null);
+  const [volumeModalPos, setVolumeModalPos] = useState<{ top: number; left: number }>({
+    top: 0,
+    left: 0,
+  });
+  const volumeTrackRef = useRef<HTMLDivElement>(null);
 
   const formatTime = (s: number) => {
     if (!s || isNaN(s)) return '0:00';
@@ -56,6 +63,7 @@ export default function PlayerBar() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onReady = (e: { target: any }) => {
     playerRef.current = e.target;
+    playerRef.current?.setVolume?.(volume);
     setDuration(e.target.getDuration());
     setCurrentTime(e.target.getCurrentTime());
   };
@@ -138,6 +146,58 @@ export default function PlayerBar() {
     } catch {
       setCurrentSong(currentSong); // 에러 시 현재 곡 반복
     }
+  };
+
+  useEffect(() => {
+    if (showVolumeBar && volumeBtnRef.current && volumeBarRef.current) {
+      const btnRect = volumeBtnRef.current.getBoundingClientRect();
+      const modalRect = volumeBarRef.current.getBoundingClientRect();
+      const gap = 8; // 버튼과 모달 사이 간격
+
+      setVolumeModalPos({
+        top: btnRect.top - modalRect.height - gap,
+        left: btnRect.left + btnRect.width / 2 - modalRect.width / 2,
+      });
+    }
+  }, [showVolumeBar]);
+
+  const increaseVolume = () => {
+    setVolume((v) => {
+      const newVolume = Math.min(v + 10, 100);
+      playerRef.current?.setVolume?.(newVolume);
+      return newVolume;
+    });
+  };
+
+  const decreaseVolume = () => {
+    setVolume((v) => {
+      const newVolume = Math.max(v - 10, 0);
+      playerRef.current?.setVolume?.(newVolume);
+      return newVolume;
+    });
+  };
+
+  const handleVolumeDrag = (
+    e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>,
+  ) => {
+    if (!volumeTrackRef.current) return;
+    const rect = volumeTrackRef.current.getBoundingClientRect();
+    const y = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    let newVolume = 100 - ((y - rect.top) / rect.height) * 100;
+    newVolume = Math.round(Math.max(0, Math.min(100, newVolume)));
+    setVolume(newVolume);
+    playerRef.current?.setVolume?.(newVolume);
+  };
+
+  const handleVolumeMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    handleVolumeDrag(e);
+    const onMouseMove = (moveEvent: MouseEvent) => handleVolumeDrag(moveEvent as any);
+    const onMouseUp = () => {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
   };
 
   if (isLoading || !currentSong) {
@@ -324,34 +384,43 @@ export default function PlayerBar() {
           {/* 볼륨 버튼+게이지바 (반응형에서 player-bar__right가 숨겨질 때도 보이게) */}
           <div className="volume-btn-wrapper">
             <button
+              ref={volumeBtnRef}
               className="player-bar__icon player-bar__a11y-btn"
               aria-label="Volume"
               tabIndex={0}
               type="button"
               onClick={() => setShowVolumeBar((v) => !v)}
             >
-              <FaVolumeUp />
+              {volume === 0 ? <FaVolumeMute /> : <FaVolumeUp />}
               <span className="sr-only">Volume</span>
             </button>
             {showVolumeBar && (
               <div
                 ref={volumeBarRef}
                 className="volume-bar-floating"
-                // position: absolute, bottom: 120% (SCSS에서 적용)
+                style={{
+                  top: volumeModalPos.top,
+                  left: volumeModalPos.left,
+                }}
               >
-                <input
-                  type="range"
-                  min={0}
-                  max={100}
-                  value={volume}
-                  onChange={(e) => {
-                    const v = Number(e.target.value);
-                    setVolume(v);
-                    playerRef.current?.setVolume?.(v);
-                  }}
-                  className="volume-bar-vertical"
-                />
-                <span className="volume-bar-label">{volume}</span>
+                <div className="volume-display">{volume}</div>
+                <div
+                  ref={volumeTrackRef}
+                  className="volume-track"
+                  onMouseDown={handleVolumeMouseDown}
+                  onTouchMove={handleVolumeDrag}
+                  onTouchStart={handleVolumeDrag}
+                >
+                  <div className="volume-track__fill" style={{ height: `${volume}%` }} />
+                </div>
+                <div className="volume-controls">
+                  <button className="volume-adjust-btn" onClick={increaseVolume}>
+                    +
+                  </button>
+                  <button className="volume-adjust-btn" onClick={decreaseVolume}>
+                    -
+                  </button>
+                </div>
               </div>
             )}
           </div>
