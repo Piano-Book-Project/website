@@ -3,7 +3,7 @@ import { defineConfig } from 'vite';
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/website/', // GitHub Pages용 base 경로
+  base: '/', // Vercel 배포를 위해 루트 경로로 변경
   plugins: [react()],
   server: {
     proxy: {

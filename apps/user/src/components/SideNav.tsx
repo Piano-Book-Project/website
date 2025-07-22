@@ -1,8 +1,14 @@
+import React from 'react';
 import './SideNav.scss';
 
-export default function SideNav() {
+interface SideNavProps {
+  isMobile?: boolean;
+  open?: boolean;
+}
+
+export default function SideNav({ isMobile = false, open = false }: SideNavProps) {
   return (
-    <nav className="side-nav">
+    <nav className={`side-nav${isMobile ? ' side-nav--mobile' : ''}${open ? ' open' : ''}`}>
       <div className="side-nav__top">
         <div className="side-nav__profile">Gi</div>
         <div className="side-nav__more">&#8942;</div>

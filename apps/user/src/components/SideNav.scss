@@ -53,7 +53,7 @@
   font-size: 18px;
   color: #fff;
   cursor: pointer;
-  transition: color 0.2s;
+  transition: color 0.2s, transform 0.2s;
   border-radius: 6px;
   padding: 4px 8px;
   position: relative;
@@ -62,9 +62,135 @@
 .side-nav__menu li:hover,
 .side-nav__menu li:focus {
   color: #ef2f62;
+  transform: translateX(6px) scale(1.04);
 }
 
 .side-nav__menu li.active {
   color: #ef2f62;
   font-weight: 500;
+}
+
+// 모바일 헤더
+.header-mobile {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 56px;
+  background: #232224;
+  z-index: 1002;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  padding-right: 20px;
+  box-sizing: border-box;
+}
+.header-mobile__profile {
+  width: 32px;
+  height: 32px;
+  background: #44454a;
+  border-radius: 50%;
+  color: #bdbdbd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+}
+.header-mobile__menu {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+// 모바일 사이드바 오버레이 애니메이션
+.side-nav__overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.3);
+  z-index: 1003;
+  display: flex;
+  opacity: 0;
+  animation: overlayFadeIn 0.3s forwards;
+  transition: opacity 0.3s;
+}
+.side-nav__overlay.closing {
+  opacity: 0;
+  pointer-events: none;
+  animation: none;
+}
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+// 모바일 사이드바 슬라이드 애니메이션
+.side-nav--mobile {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 240px;
+  height: 100vh;
+  background: #232224;
+  z-index: 1004;
+  transform: translateX(-100%);
+  opacity: 0.7;
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.3s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: 2px 0 16px rgba(0,0,0,0.2);
+  border-right: 1px solid #222;
+}
+.side-nav--mobile.open {
+  transform: translateX(0);
+  opacity: 1;
+}
+.side-nav__overlay.closing .side-nav--mobile {
+  transform: translateX(-100%);
+  opacity: 0.7;
+}
+.side-nav__close {
+  background: none;
+  border: none;
+  color: #bdbdbd;
+  font-size: 32px;
+  margin-left: auto;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.side-nav__close:hover {
+  color: #ef2f62;
+}
+
+// 오버레이 뒷배경(추후 필요시)
+.side-nav__overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.3);
+  z-index: 1003;
+  display: flex;
+}
+
+// 반응형
+@media (max-width: 767px) {
+  .side-nav {
+    display: none;
+  }
+  .side-nav--mobile {
+    display: flex;
+    flex-direction: column;
+    padding-top: 56px;
+  }
+  .header-mobile {
+    display: flex;
+  }
 }

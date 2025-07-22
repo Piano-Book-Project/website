@@ -69,7 +69,8 @@ export const playlistRouter = router({
         throw new TRPCError({ code: 'NOT_FOUND', message: '플레이리스트에 곡이 없습니다.' });
       }
       // 2. 현재 곡의 인덱스 찾기
-      const idx = playlist.findIndex((item) => item.songId === currentSongId);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const idx = playlist.findIndex((item: any) => item.songId === currentSongId);
       if (idx === -1) {
         throw new TRPCError({ code: 'NOT_FOUND', message: '현재 곡이 플레이리스트에 없습니다.' });
       }
@@ -93,7 +94,8 @@ export const playlistRouter = router({
       if (!playlist.length) {
         throw new TRPCError({ code: 'NOT_FOUND', message: '플레이리스트에 곡이 없습니다.' });
       }
-      const idx = playlist.findIndex((item) => item.songId === currentSongId);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const idx = playlist.findIndex((item: any) => item.songId === currentSongId);
       if (idx === -1) {
         throw new TRPCError({ code: 'NOT_FOUND', message: '현재 곡이 플레이리스트에 없습니다.' });
       }
