@@ -13,7 +13,7 @@ const defaultSong: Song = {
   id: '1',
   title: 'tr(Ever)',
   artist: defaultArtist,
-  image: '/src/assets/img_cover1.jpg',
+  image: '/img_cover1.svg',
   duration: 180, // 3분
 };
 

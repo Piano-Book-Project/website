@@ -16,7 +16,7 @@ describe('PlayerBar', () => {
         id: '1',
         title: 'tr(Ever)',
         artist: { id: '1', name: 'Hebl' },
-        image: '/src/assets/img_cover1.jpg',
+        image: '/img_cover1.svg',
       },
       isPlaying: false,
       volume: 0.7,

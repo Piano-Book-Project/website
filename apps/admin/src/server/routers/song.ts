@@ -2,6 +2,7 @@ import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import prisma from '../prisma';
 import { router, procedure } from '../trpc';
+import type { NextApiRequest, NextApiResponse } from 'next';
 
 export const songRouter = router({
   create: procedure
@@ -67,3 +68,22 @@ export const songRouter = router({
     }
   }),
 });
+
+// 임시: id=1 노래의 imageUrl을 업데이트하는 API (실행 후 반드시 삭제)
+export async function updateSongImageUrl(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'POST') {
+    res.status(405).json({ error: 'Method not allowed' });
+    return;
+  }
+  try {
+    const updated = await prisma.song.update({
+      where: { id: 1 },
+      data: {
+        imageUrl: 'https://i.namu.wiki/i/O9vf0iStTwTT7k81mQqdSqtGc7gdXdmlDuFU1mVtQE-296jGux-GgNqP74FxWTnGrr4BUw0jdE5muGuwlNiHGQ.webp',
+      },
+    });
+    res.status(200).json({ success: true, updated });
+  } catch (e) {
+    res.status(500).json({ error: (e as Error).message });
+  }
+}

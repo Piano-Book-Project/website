@@ -14,5 +14,5 @@ export function isValidImageUrl(url: string): boolean {
 
 // 기본 이미지 경로 반환
 export function getDefaultImagePath(): string {
-  return '/src/assets/img_cover1.jpg';
+  return '/img_cover1.svg';
 }

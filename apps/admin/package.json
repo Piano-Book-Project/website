@@ -1,16 +1,12 @@
 {
-  "name": "monorepo-app",
+  "name": "admin",
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "npm run build:user && npm run build:admin",
-    "build:user": "cd apps/user && npm install && npm run build",
-    "build:admin": "cd apps/admin && npm install && npm run build",
-    "dev": "concurrently \"npm run dev:user\" \"npm run dev:admin\"",
-    "dev:user": "cd apps/user && npm run dev",
-    "dev:admin": "cd apps/admin && npm run dev",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "workspaces": [
     "apps/*",
