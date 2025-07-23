@@ -5,7 +5,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import type { AppRouter } from 'schema/src/trpc';
 import './styles/global.scss';
-import App from './App';
+import Router from './router';
 import ErrorBoundary from './components/ErrorBoundary';
 
 const trpc = createTRPCReact<AppRouter>();
@@ -24,7 +24,7 @@ createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
       <trpc.Provider client={trpcClient} queryClient={queryClient}>
         <ErrorBoundary>
-          <App />
+          <Router />
         </ErrorBoundary>
       </trpc.Provider>
     </QueryClientProvider>

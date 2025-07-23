@@ -7,10 +7,14 @@ const MusicIcon = () => (
 );
 
 export function CoverImage({ src, alt }: { src?: string; alt?: string }) {
-  const [error] = useState(false);
+  const [error, setError] = useState(false);
   return (
     <div className="cover-image">
-      {!error && src ? <img src={src} alt={alt} className="cover-image__img" /> : <MusicIcon />}
+      {!error && src ? (
+        <img src={src} alt={alt} className="cover-image__img" onError={() => setError(true)} />
+      ) : (
+        <MusicIcon />
+      )}
     </div>
   );
 }

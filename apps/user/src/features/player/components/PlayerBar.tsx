@@ -129,22 +129,24 @@ export default function PlayerBar() {
   const handleNext = async () => {
     if (!currentSong) return;
     try {
-      const { data: next } = await nextSongQuery.refetch();
-      if (next) setCurrentSong(next);
-      else setCurrentSong(currentSong); // 다음 곡 없으면 현재 곡 반복
+      const { data: next, error: nextError } = await nextSongQuery.refetch();
+      if (nextError || !next)
+        setCurrentSong(currentSong); // 곡이 없거나 404면 현재 곡 유지
+      else setCurrentSong(next);
     } catch {
-      setCurrentSong(currentSong); // 에러 시 현재 곡 반복
+      setCurrentSong(currentSong); // 에러 시 현재 곡 유지
     }
   };
 
   const handlePrev = async () => {
     if (!currentSong) return;
     try {
-      const { data: prev } = await prevSongQuery.refetch();
-      if (prev) setCurrentSong(prev);
-      else setCurrentSong(currentSong); // 이전 곡 없으면 현재 곡 반복
+      const { data: prev, error: prevError } = await prevSongQuery.refetch();
+      if (prevError || !prev)
+        setCurrentSong(currentSong); // 곡이 없거나 404면 현재 곡 유지
+      else setCurrentSong(prev);
     } catch {
-      setCurrentSong(currentSong); // 에러 시 현재 곡 반복
+      setCurrentSong(currentSong); // 에러 시 현재 곡 유지
     }
   };
 
