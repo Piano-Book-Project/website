@@ -1,4 +1,3 @@
-import React from 'react';
 import './SideNav.scss';
 import { useSideNav } from '../hooks/useSideNav';
 

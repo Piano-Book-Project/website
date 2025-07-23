@@ -1,4 +1,3 @@
-import React from 'react';
 import './SideNav.scss';
 
 interface HeaderProps {
