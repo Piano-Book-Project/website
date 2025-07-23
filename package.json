@@ -24,6 +24,7 @@
     "@testing-library/react": "^16.3.0",
     "@trpc/server": "^11.4.3",
     "@types/jest": "^29.5.11",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/testing-library__react": "^10.2.0",
     "@typescript-eslint/eslint-plugin": "7.17.0",
     "@typescript-eslint/parser": "7.17.0",
