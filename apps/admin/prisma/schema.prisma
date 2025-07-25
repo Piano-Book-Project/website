@@ -60,13 +60,34 @@ model Playlist {
   playedAt   DateTime @default(now())
 }
 
+model Category {
+  id        Int      @id @default(autoincrement())
+  code      String   @unique
+  status    String   @default("active")
+  name      String   @unique
+  order     Int      @default(0)
+  artists   Artist[]
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+  updatedBy String
+  isActive  Boolean  @default(true)
+}
+
 model Artist {
   id          Int      @id @default(autoincrement())
-  name        String
+  name        String   @unique
   description String?
   imageUrl    String?
+  category    Category @relation(fields: [categoryId], references: [id])
+  categoryId  Int
   songs       Song[]
   playlists   Playlist[] @relation("ArtistPlaylists")
+  createdAt   DateTime @default(now())
+  createdBy   String
+  updatedAt   DateTime @updatedAt
+  updatedBy   String
+  isActive    Boolean  @default(true)
 }
 
 model Song {
@@ -81,4 +102,22 @@ model Song {
   artist        Artist   @relation(fields: [artistId], references: [id])
   artistId      Int
   playlists     Playlist[] @relation("SongPlaylists")
+  createdAt     DateTime @default(now())
+  createdBy     String
+  updatedAt     DateTime @updatedAt
+  updatedBy     String
+  isActive      Boolean  @default(true)
+  isFeaturedMainVisual Boolean @default(false)
+  tags          Tag[]    @relation("SongTags")
+}
+
+model Tag {
+  id        Int    @id @default(autoincrement())
+  name      String @unique
+  songs     Song[] @relation("SongTags")
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+  updatedBy String
+  isActive  Boolean  @default(true)
 } 

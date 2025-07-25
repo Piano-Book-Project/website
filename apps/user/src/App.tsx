@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import PlayerBar from './features/player/components/PlayerBar';
-import SideNav from './components/SideNav';
-import Header from './components/Header';
 import { Outlet } from 'react-router-dom';
+import Header from './components/Header';
+import SideNav from './components/SideNav';
+import PlayerBar from './features/player/components/PlayerBar';
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -54,7 +54,7 @@ function App() {
       ) : (
         <SideNav />
       )}
-      <div style={{ marginLeft: mobile ? 0 : 240, padding: 24 }}>
+      <div style={{ marginLeft: mobile ? 0 : 240, padding: 0 }}>
         <Outlet />
       </div>
       <PlayerBar />

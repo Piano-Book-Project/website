@@ -1,43 +1,23 @@
-import React from 'react';
+'use client';
+
 import '../styles/global.scss';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactNode } from 'react';
+import ClientLayout from '../components/ClientLayout';
+import { trpc, createTrpcClient } from '../utils/trpc';
 
-export const metadata = {
-  title: '김츄츄의 피아노책',
-  description:
-    '김츄츄가 연주하는 다양한 피아노 커버를 소개하는 페이지입니다. 김츄츄의 음악을 사랑하는 분들을 위한 공간입니다.',
-  keywords: ['피아노', '커버', '연주', '음악', '김츄츄', 'Piano', 'Cover', 'Music'],
-  authors: [{ name: '김츄츄' }],
-  robots: 'index, follow',
-  openGraph: {
-    title: '김츄츄의 피아노책',
-    description: '다양한 피아노 커버를 감상하세요.',
-    type: 'website',
-    url: 'https://your-domain.com/',
-    images: [
-      {
-        url: 'https://your-domain.com/og-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: '김츄츄의 피아노책',
-      },
-    ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: '김츄츄의 피아노책',
-    description: '다양한 피아노 커버를 감상하세요.',
-    images: ['https://your-domain.com/og-image.jpg'],
-  },
-  icons: {
-    icon: '/ci.ico',
-  },
-  themeColor: '#1F1F22',
-};
+const queryClient = new QueryClient();
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ko">
-      <body style={{ background: '#171719', minHeight: '100vh' }}>{children}</body>
+      <body>
+        <trpc.Provider client={createTrpcClient()} queryClient={queryClient}>
+          <QueryClientProvider client={queryClient}>
+            <ClientLayout>{children}</ClientLayout>
+          </QueryClientProvider>
+        </trpc.Provider>
+      </body>
     </html>
   );
 }

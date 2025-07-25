@@ -168,6 +168,7 @@ export default function AdminLogin() {
                   alignItems: 'center',
                   paddingLeft: 24,
                   paddingRight: 24,
+                  rowGap: 8,
                 }}
               >
                 <input
@@ -177,7 +178,7 @@ export default function AdminLogin() {
                   onChange={(e) => {
                     setId(e.target.value);
                     setError('');
-                    if (e.target.value.length >= 3) setStep('pw');
+                    if (e.target.value.length >= 1) setStep('pw');
                     else setStep('id');
                   }}
                   disabled={step === 'pw' && loading}
@@ -190,40 +191,39 @@ export default function AdminLogin() {
                     color: '#fff',
                     fontSize: 16,
                     outline: 'none',
-                    marginBottom: 6,
+                    marginBottom: 0, // margin 0으로 변경
                     fontWeight: 500,
                     letterSpacing: 0.5,
                     boxSizing: 'border-box',
                     textAlign: 'left',
                   }}
                 />
-                {id.length >= 3 && (
-                  <input
-                    ref={pwInputRef}
-                    type="password"
-                    placeholder="비밀번호"
-                    value={pw}
-                    onChange={(e) => {
-                      setPw(e.target.value);
-                      setError('');
-                    }}
-                    style={{
-                      width: 324,
-                      padding: '1.1em 1em',
-                      borderRadius: 8,
-                      border: '1px solid #8E918F',
-                      background: '#19191f',
-                      color: '#fff',
-                      fontSize: 16,
-                      outline: 'none',
-                      marginBottom: 6,
-                      fontWeight: 500,
-                      letterSpacing: 0.5,
-                      boxSizing: 'border-box',
-                      textAlign: 'left',
-                    }}
-                  />
-                )}
+                <input
+                  ref={pwInputRef}
+                  type="password"
+                  placeholder="비밀번호"
+                  value={pw}
+                  onChange={(e) => {
+                    setPw(e.target.value);
+                    setError('');
+                  }}
+                  style={{
+                    width: 324,
+                    padding: '1.1em 1em',
+                    borderRadius: 8,
+                    border: '1px solid #8E918F',
+                    background: '#19191f',
+                    color: '#fff',
+                    fontSize: 16,
+                    outline: 'none',
+                    marginBottom: 0, // margin 0으로 변경
+                    fontWeight: 500,
+                    letterSpacing: 0.5,
+                    boxSizing: 'border-box',
+                    textAlign: 'left',
+                    display: id.length >= 1 ? 'block' : 'none',
+                  }}
+                />
               </div>
               {/* 에러 메시지 */}
               {error && (

@@ -1,5 +1,5 @@
 import { createTRPCReact } from '@trpc/react-query';
-import { useRef, useState, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   FaRandom,
   FaStepBackward,
@@ -16,33 +16,81 @@ import {
 } from 'react-icons/fa';
 import YouTube from 'react-youtube';
 import type { AppRouter } from 'schema/src/trpc';
+import { usePlayerStore } from '../stores/playerStore';
 import { CoverImage } from './CoverImage';
 
 const trpc = createTRPCReact<AppRouter>();
 
 export default function PlayerBar() {
   const userId = 1; // 실제 로그인 유저로 대체 가능
-  const { data: initialSong, isLoading, error } = trpc.song.get.useQuery({ id: 1 });
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [currentSong, setCurrentSong] = useState<any | null>(null);
-  const nextSongQuery = trpc.playlist.next.useQuery(
-    { userId, currentSongId: currentSong?.id ?? 1 },
-    { enabled: false },
-  );
-  const prevSongQuery = trpc.playlist.prev.useQuery(
-    { userId, currentSongId: currentSong?.id ?? 1 },
-    { enabled: false },
-  );
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const playerRef = useRef<any | null>(null);
+  const {
+    playlist,
+    currentSong,
+    isPlaying,
+    volume,
+    currentTime,
+    setPlaylist,
+    setCurrentSong,
+    setIsPlaying,
+    setVolume,
+    setCurrentTime,
+  } = usePlayerStore();
+
+  // 플레이리스트 fetch (API → store)
+  const { data: playlistData } = trpc.playlist.list.useQuery();
+  useEffect(() => {
+    if (playlistData) {
+      const userPlaylist = playlistData.filter((item: any) => item.userId === userId);
+      setPlaylist(userPlaylist);
+    }
+  }, [playlistData, userId, setPlaylist]);
+
+  // next/prev API
+  // const nextSongQuery = trpc.playlist.next.useQuery(
+  //   { userId, currentSongId: currentSong?.id ?? 1 },
+  //   { enabled: false },
+  // );
+  // const prevSongQuery = trpc.playlist.prev.useQuery(
+  //   { userId, currentSongId: currentSong?.id ?? 1 },
+  //   { enabled: false },
+  // );
+  const handleNext = async () => {
+    if (!currentSong || !playlist || playlist.length === 0) return;
+    if (playlist.length === 1) {
+      setCurrentSong(playlist[0].song);
+      return;
+    }
+    try {
+      // const { data: next } = await nextSongQuery.refetch();
+      // if (next) setCurrentSong(next);
+      // else setCurrentSong(currentSong);
+      setCurrentSong(playlist[1].song); // 더미 데이터
+    } catch {
+      setCurrentSong(currentSong);
+    }
+  };
+  const handlePrev = async () => {
+    if (!currentSong || !playlist || playlist.length === 0) return;
+    if (playlist.length === 1) {
+      setCurrentSong(playlist[0].song);
+      return;
+    }
+    try {
+      // const { data: prev } = await prevSongQuery.refetch();
+      // if (prev) setCurrentSong(prev);
+      // else setCurrentSong(currentSong);
+      setCurrentSong(playlist[playlist.length - 2].song); // 더미 데이터
+    } catch {
+      setCurrentSong(currentSong);
+    }
+  };
+
+  // 볼륨/유튜브/재생 관련 로컬 상태
+  const [showVolumeBar, setShowVolumeBar] = useState(false);
   const [isShuffling, setIsShuffling] = useState(false);
   const [isRepeating, setIsRepeating] = useState(false);
   const [liked, setLiked] = useState(false);
-  const [volume, setVolume] = useState(100);
-  const [showVolumeBar, setShowVolumeBar] = useState(false);
+  const playerRef = useRef<any | null>(null);
   const volumeBarRef = useRef<HTMLDivElement>(null);
   const volumeBtnRef = useRef<HTMLButtonElement>(null);
   const [volumeModalPos, setVolumeModalPos] = useState<{ top: number; left: number }>({
@@ -50,17 +98,17 @@ export default function PlayerBar() {
     left: 0,
   });
   const volumeTrackRef = useRef<HTMLDivElement>(null);
+  const [duration, setDuration] = useState(0);
 
-  const formatTime = (s: number) => {
-    if (!s || isNaN(s)) return '0:00';
-    const m = Math.floor(s / 60);
-    const sec = Math.floor(s % 60)
-      .toString()
-      .padStart(2, '0');
-    return `${m}:${sec}`;
+  // 유튜브 관련
+  const getYoutubeId = (url?: string | null): string | undefined => {
+    if (!url) return undefined;
+    const match = url.match(/[?&]v=([^&#]+)/);
+    return match ? match[1] : undefined;
   };
+  const videoId = getYoutubeId(currentSong?.youtubeUrl);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // 유튜브 이벤트 핸들러
   const onReady = (e: { target: any }) => {
     playerRef.current = e.target;
     playerRef.current?.setVolume?.(volume);
@@ -70,31 +118,36 @@ export default function PlayerBar() {
   const onStateChange = (e: { data: number }) => {
     setIsPlaying(e.data === 1);
   };
-  useEffect(() => {
-    let interval: ReturnType<typeof setInterval> | undefined;
-    if (isPlaying && playerRef.current) {
-      interval = setInterval(() => {
-        setCurrentTime(playerRef.current!.getCurrentTime());
-      }, 300);
-    }
-    return () => interval && clearInterval(interval);
-  }, [isPlaying]);
 
+  // 볼륨/진행바/컨트롤 핸들러
+  useEffect(() => {
+    if (playerRef.current) playerRef.current.setVolume?.(volume);
+  }, [volume]);
+  useEffect(() => {
+    if (!showVolumeBar) return;
+    const handleClick = (e: MouseEvent) => {
+      if (volumeBarRef.current && !volumeBarRef.current.contains(e.target as Node))
+        setShowVolumeBar(false);
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [showVolumeBar]);
+  useEffect(() => {
+    if (showVolumeBar && volumeBtnRef.current && volumeBarRef.current) {
+      const btnRect = volumeBtnRef.current.getBoundingClientRect();
+      const modalRect = volumeBarRef.current.getBoundingClientRect();
+      const gap = 8;
+      setVolumeModalPos({
+        top: btnRect.top - modalRect.height - gap,
+        left: btnRect.left + btnRect.width / 2 - modalRect.width / 2,
+      });
+    }
+  }, [showVolumeBar]);
   const handlePlayPause = () => {
     if (!playerRef.current) return;
-    if (isPlaying) {
-      playerRef.current.pauseVideo?.();
-    } else {
-      playerRef.current.playVideo?.();
-    }
+    if (isPlaying) playerRef.current.pauseVideo?.();
+    else playerRef.current.playVideo?.();
   };
-
-  const getYoutubeId = (url?: string | null): string | undefined => {
-    if (!url) return undefined;
-    const match = url.match(/[?&]v=([^&#]+)/);
-    return match ? match[1] : undefined;
-  };
-
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     if (!playerRef.current || typeof playerRef.current.seekTo !== 'function' || !duration) return;
     const rect = e.currentTarget.getBoundingClientRect();
@@ -104,81 +157,8 @@ export default function PlayerBar() {
     playerRef.current.seekTo(seekTime, true);
     setCurrentTime(seekTime);
   };
-
-  useEffect(() => {
-    if (playerRef.current) {
-      playerRef.current.setVolume?.(volume);
-    }
-  }, [volume]);
-
-  useEffect(() => {
-    if (!showVolumeBar) return;
-    const handleClick = (e: MouseEvent) => {
-      if (volumeBarRef.current && !volumeBarRef.current.contains(e.target as Node)) {
-        setShowVolumeBar(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, [showVolumeBar]);
-
-  useEffect(() => {
-    if (initialSong) setCurrentSong(initialSong);
-  }, [initialSong]);
-
-  const handleNext = async () => {
-    if (!currentSong) return;
-    try {
-      const { data: next, error: nextError } = await nextSongQuery.refetch();
-      if (nextError || !next)
-        setCurrentSong(currentSong); // 곡이 없거나 404면 현재 곡 유지
-      else setCurrentSong(next);
-    } catch {
-      setCurrentSong(currentSong); // 에러 시 현재 곡 유지
-    }
-  };
-
-  const handlePrev = async () => {
-    if (!currentSong) return;
-    try {
-      const { data: prev, error: prevError } = await prevSongQuery.refetch();
-      if (prevError || !prev)
-        setCurrentSong(currentSong); // 곡이 없거나 404면 현재 곡 유지
-      else setCurrentSong(prev);
-    } catch {
-      setCurrentSong(currentSong); // 에러 시 현재 곡 유지
-    }
-  };
-
-  useEffect(() => {
-    if (showVolumeBar && volumeBtnRef.current && volumeBarRef.current) {
-      const btnRect = volumeBtnRef.current.getBoundingClientRect();
-      const modalRect = volumeBarRef.current.getBoundingClientRect();
-      const gap = 8; // 버튼과 모달 사이 간격
-
-      setVolumeModalPos({
-        top: btnRect.top - modalRect.height - gap,
-        left: btnRect.left + btnRect.width / 2 - modalRect.width / 2,
-      });
-    }
-  }, [showVolumeBar]);
-
-  const increaseVolume = () => {
-    setVolume((v) => {
-      const newVolume = Math.min(v + 10, 100);
-      playerRef.current?.setVolume?.(newVolume);
-      return newVolume;
-    });
-  };
-
-  const decreaseVolume = () => {
-    setVolume((v) => {
-      const newVolume = Math.max(v - 10, 0);
-      playerRef.current?.setVolume?.(newVolume);
-      return newVolume;
-    });
-  };
-
+  const increaseVolume = () => setVolume(Math.min(volume + 10, 100));
+  const decreaseVolume = () => setVolume(Math.max(volume - 10, 0));
   const handleVolumeDrag = (
     e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>,
   ) => {
@@ -190,7 +170,6 @@ export default function PlayerBar() {
     setVolume(newVolume);
     playerRef.current?.setVolume?.(newVolume);
   };
-
   const handleVolumeMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     handleVolumeDrag(e);
     const onMouseMove = (moveEvent: MouseEvent) => handleVolumeDrag(moveEvent as any);
@@ -201,43 +180,57 @@ export default function PlayerBar() {
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
   };
+  const formatTime = (s: number) => {
+    if (!s || isNaN(s)) return '0:00';
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60)
+      .toString()
+      .padStart(2, '0');
+    return `${m}:${sec}`;
+  };
 
-  if (isLoading || !currentSong) {
+  // 예외처리: 플레이리스트 없음
+  if (!playlist || playlist.length === 0) {
     return (
-      <div className="player-bar player-bar-loading" style={{ height: 65 }}>
-        Loading...
+      <div
+        className="player-bar player-bar-loading"
+        style={{ height: 65, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      >
+        <span style={{ color: '#bcbcbc', fontSize: 16 }}>선택하신 곡이 없습니다.</span>
       </div>
     );
   }
-  if (error) {
+  // 예외처리: 곡 정보 없음
+  if (!currentSong) {
     return (
-      <div className="player-bar" style={{ height: 65 }}>
-        <span className="text-red-400">No song found</span>
+      <div
+        className="player-bar player-bar-loading"
+        style={{ height: 65, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      >
+        <span style={{ color: '#bcbcbc', fontSize: 16 }}>곡 정보를 불러올 수 없습니다.</span>
       </div>
     );
   }
-
-  const videoId = getYoutubeId(
-    typeof currentSong.youtubeUrl === 'string' ? currentSong.youtubeUrl : undefined,
-  );
 
   return (
     <nav className="player-bar" aria-label="Music Player Controls">
       <div className="youtube-hidden">
-        <YouTube
-          videoId={videoId}
-          opts={{
-            height: '0',
-            width: '0',
-            playerVars: {
-              controls: 0,
-              loop: isRepeating ? 1 : 0,
-              playlist: isRepeating ? videoId : undefined,
-            },
-          }}
-          onReady={onReady}
-          onStateChange={onStateChange}
-        />
+        {currentSong.youtubeUrl && (
+          <YouTube
+            videoId={videoId}
+            opts={{
+              height: '0',
+              width: '0',
+              playerVars: {
+                controls: 0,
+                loop: isRepeating ? 1 : 0,
+                playlist: isRepeating ? videoId : undefined,
+              },
+            }}
+            onReady={onReady}
+            onStateChange={onStateChange}
+          />
+        )}
       </div>
       <div className="player-bar__main">
         <div className="player-bar__info-group">
@@ -280,9 +273,7 @@ export default function PlayerBar() {
               </button>
             </div>
             <div className="player-bar__artist">{currentSong.artist?.name ?? 'Unknown Artist'}</div>
-            <div className="player-bar__source">
-              PLAI<span style={{ letterSpacing: 0 }}>N</span>G FROM: CHU PIANO
-            </div>
+            <div className="player-bar__source">PLAYING FROM: PLAYLIST</div>
           </div>
         </div>
         <div className="player-bar__center">
@@ -383,7 +374,6 @@ export default function PlayerBar() {
           </div>
         </div>
         <div className="player-bar__right" role="group" aria-label="Other controls">
-          {/* 볼륨 버튼+게이지바 (반응형에서 player-bar__right가 숨겨질 때도 보이게) */}
           <div className="volume-btn-wrapper">
             <button
               ref={volumeBtnRef}
@@ -400,10 +390,7 @@ export default function PlayerBar() {
               <div
                 ref={volumeBarRef}
                 className="volume-bar-floating"
-                style={{
-                  top: volumeModalPos.top,
-                  left: volumeModalPos.left,
-                }}
+                style={{ top: volumeModalPos.top, left: volumeModalPos.left }}
               >
                 <div className="volume-display">{volume}</div>
                 <div

@@ -6,11 +6,16 @@
     "build": "npm run build:user && npm run build:admin",
     "build:user": "cd apps/user && npm install && npm run build",
     "build:admin": "cd apps/admin && npm install && npm run build",
-    "dev": "concurrently \"npm run dev:user\" \"npm run dev:admin\"",
+    "dev": "npm run dev:all",
+    "dev:all": "concurrently \"npm run dev:user\" \"npm run dev:admin\" \"npm run dev:studio\"",
     "dev:user": "cd apps/user && npm run dev",
     "dev:admin": "cd apps/admin && npm run dev",
+    "dev:studio": "cd apps/admin && npx prisma studio --port 5555",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prisma": {
+      "seed": "ts-node apps/admin/prisma/seed.ts"
+    }
   },
   "workspaces": [
     "apps/*",
@@ -42,6 +47,7 @@
     "jest": "^29.7.0",
     "lint-staged": "^16.1.2",
     "prettier": "^3.6.2",
+    "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4",
     "winston": "^3.17.0",

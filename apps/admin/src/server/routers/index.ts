@@ -1,20 +1,16 @@
 import { router } from '../trpc';
-import { adminRouter } from './admin';
 import { artistRouter } from './artist';
-import { menuAccessRouter } from './menuAccess';
-import { permissionRouter } from './permission';
+import { categoryRouter } from './category';
 import { playlistRouter } from './playlist';
 import { songRouter } from './song';
-import { userRouter } from './user';
+import { tagRouter } from './tag';
 
 export const appRouter = router({
-  admin: adminRouter,
-  permission: permissionRouter,
-  menuAccess: menuAccessRouter,
-  user: userRouter,
-  playlist: playlistRouter,
-  artist: artistRouter,
   song: songRouter,
+  artist: artistRouter,
+  category: categoryRouter,
+  playlist: playlistRouter,
+  tag: tagRouter,
 });
 
 export type AppRouter = typeof appRouter;

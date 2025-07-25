@@ -5,8 +5,8 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import type { AppRouter } from 'schema/src/trpc';
 import './styles/global.scss';
-import Router from './router';
 import ErrorBoundary from './components/ErrorBoundary';
+import Router from './router';
 
 const trpc = createTRPCReact<AppRouter>();
 

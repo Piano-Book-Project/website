@@ -1,10 +1,10 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Home from './routes/Home';
+import App from './App';
 import AboutUs from './routes/AboutUs';
+import ContactUs from './routes/ContactUs';
+import Home from './routes/Home';
 import PianoBooks from './routes/PianoBooks';
 import Price from './routes/Price';
-import ContactUs from './routes/ContactUs';
-import App from './App';
 
 export default function Router() {
   return (

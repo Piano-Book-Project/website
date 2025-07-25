@@ -16,3 +16,10 @@ export function isValidImageUrl(url: string): boolean {
 export function getDefaultImagePath(): string {
   return '/img_cover1.svg';
 }
+
+export function getYoutubeThumbnail(youtubeUrl?: string): string | undefined {
+  if (!youtubeUrl) return undefined;
+  const match = youtubeUrl.match(/[?&]v=([^&#]+)/);
+  const id = match ? match[1] : undefined;
+  return id ? `https://i.ytimg.com/vi/${id}/maxresdefault.jpg` : undefined;
+}

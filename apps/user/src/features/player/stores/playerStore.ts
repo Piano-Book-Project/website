@@ -1,44 +1,57 @@
 import { create } from 'zustand';
-import type { PlayerState, PlayerActions, Song, Artist } from '../types';
+import type { PlayerState, PlayerActions, PlaylistItem } from '../types';
 
-// 기본 아티스트 정보 (임시)
-const defaultArtist: Artist = {
-  id: '1',
-  name: 'Hebl',
-  image: undefined,
-};
-
-// 기본 곡 정보 (img_cover1.jpg 사용)
-const defaultSong: Song = {
-  id: '1',
-  title: 'tr(Ever)',
-  artist: defaultArtist,
-  image: '/img_cover1.svg',
-  duration: 180, // 3분
-};
-
-// 플레이어 상태 및 액션을 관리하는 Zustand store
-export const usePlayerStore = create<PlayerState & PlayerActions>((set) => ({
-  // 초기 상태
-  currentSong: defaultSong,
+export const usePlayerStore = create<PlayerState & PlayerActions>((set, get) => ({
+  playlist: [],
+  currentSong: null,
   isPlaying: false,
   volume: 0.7,
   currentTime: 0,
 
-  // 액션들
+  fetchPlaylist: async () => {
+    // 컴포넌트에서 useQuery로 받아온 데이터를 setPlaylist로 넘겨야 함
+    // 이 함수는 더 이상 직접 API를 호출하지 않음
+    // (호환성 위해 남겨둠)
+  },
+  setPlaylist: (playlist: PlaylistItem[]) => {
+    set({ playlist });
+    if (playlist.length > 0) {
+      set({ currentSong: playlist[0].song });
+    } else {
+      set({ currentSong: null });
+    }
+  },
   setCurrentSong: (song) => set({ currentSong: song }),
   setIsPlaying: (isPlaying) => set({ isPlaying }),
   setVolume: (volume) => set({ volume }),
   setCurrentTime: (currentTime) => set({ currentTime }),
 
-  play: () => set({ isPlaying: true }),
-  pause: () => set({ isPlaying: false }),
-
-  next: () => {
-    // TODO: 다음 곡 로직 (플레이리스트에서 다음 곡으로)
+  play: async () => {
+    set({ isPlaying: true });
+  },
+  pause: async () => {
+    set({ isPlaying: false });
   },
 
-  previous: () => {
-    // TODO: 이전 곡 로직 (플레이리스트에서 이전 곡으로)
+  next: async () => {
+    const { currentSong, playlist } = get();
+    if (!currentSong || playlist.length === 0) return;
+    if (playlist.length === 1) {
+      set({ currentSong: playlist[0].song });
+      return;
+    }
+    // next는 컴포넌트에서 API로 받아온 값을 setCurrentSong으로 넘겨야 함
   },
+
+  previous: async () => {
+    const { currentSong, playlist } = get();
+    if (!currentSong || playlist.length === 0) return;
+    if (playlist.length === 1) {
+      set({ currentSong: playlist[0].song });
+      return;
+    }
+    // previous도 컴포넌트에서 API로 받아온 값을 setCurrentSong으로 넘겨야 함
+  },
+  addSong: async () => {},
+  removeSong: async () => {},
 }));

@@ -10,27 +10,18 @@ export const artistRouter = router({
         name: z.string().min(1),
         description: z.string().optional(),
         imageUrl: z.string().optional(),
+        categoryId: z.number(),
+        createdBy: z.string(),
+        isActive: z.boolean().optional(),
       }),
     )
     .mutation(async ({ input }) => {
       try {
-        return await prisma.artist.create({ data: input });
+        return await prisma.artist.create({ data: { ...input, updatedBy: input.createdBy } });
       } catch (e) {
         throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: (e as Error).message });
       }
     }),
-  get: procedure.input(z.object({ id: z.number() })).query(async ({ input }) => {
-    const artist = await prisma.artist.findUnique({
-      where: { id: input.id },
-      include: { songs: true, playlists: true },
-    });
-    if (!artist)
-      throw new TRPCError({ code: 'NOT_FOUND', message: '존재하지 않는 아티스트입니다.' });
-    return artist;
-  }),
-  list: procedure.query(async () => {
-    return prisma.artist.findMany({ include: { songs: true, playlists: true } });
-  }),
   update: procedure
     .input(
       z.object({
@@ -38,13 +29,15 @@ export const artistRouter = router({
         name: z.string().optional(),
         description: z.string().optional(),
         imageUrl: z.string().optional(),
+        categoryId: z.number().optional(),
+        updatedBy: z.string(),
+        isActive: z.boolean().optional(),
       }),
     )
     .mutation(async ({ input }) => {
-      const { id, ...data } = input;
       try {
-        const artist = await prisma.artist.update({ where: { id }, data });
-        return artist;
+        const { id, ...data } = input;
+        return await prisma.artist.update({ where: { id }, data });
       } catch (e) {
         throw new TRPCError({ code: 'NOT_FOUND', message: '존재하지 않는 아티스트입니다.' });
       }
@@ -57,4 +50,21 @@ export const artistRouter = router({
       throw new TRPCError({ code: 'NOT_FOUND', message: '존재하지 않는 아티스트입니다.' });
     }
   }),
+  get: procedure.input(z.object({ id: z.number() })).query(async ({ input }) => {
+    const artist = await prisma.artist.findUnique({
+      where: { id: input.id },
+      include: { songs: true },
+    });
+    if (!artist)
+      throw new TRPCError({ code: 'NOT_FOUND', message: '존재하지 않는 아티스트입니다.' });
+    return artist;
+  }),
+  list: procedure
+    .input(z.object({ isActive: z.boolean().optional() }).optional())
+    .query(async ({ input }) => {
+      return prisma.artist.findMany({
+        where: { isActive: input?.isActive },
+        include: { songs: true },
+      });
+    }),
 });
