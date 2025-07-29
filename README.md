@@ -20,6 +20,7 @@ website-1/
 ## 🚀 Features
 
 ### Admin Panel (`/admin`)
+
 - **Category Management**: Create, edit, delete, and reorder categories
 - **Artist Management**: Manage artists with category associations
 - **Song Management**: Manage songs with artist associations
@@ -28,6 +29,7 @@ website-1/
 - **Authentication**: Secure login system with middleware protection
 
 ### User Application (`/`)
+
 - **Main Visual Section**: Dynamic category-based content display
 - **Music Player**: YouTube integration with autoplay and mute
 - **Playlist System**: Add songs to playlist with immediate playback
@@ -37,16 +39,19 @@ website-1/
 ## 🛠️ Technology Stack
 
 ### Frontend
+
 - **Admin**: Next.js 14, TypeScript, tRPC, Prisma
 - **User**: React 18, TypeScript, Vite, Zustand
 - **Styling**: SCSS with modular architecture
 
 ### Backend
+
 - **Database**: SQLite with Prisma ORM
 - **API**: tRPC for type-safe API calls
 - **Authentication**: Next.js middleware
 
 ### Development Tools
+
 - **Package Manager**: npm workspaces
 - **Linting**: ESLint + Prettier
 - **Type Safety**: TypeScript strict mode
@@ -54,12 +59,14 @@ website-1/
 ## 🎵 Music Features
 
 ### Player System
+
 - **YouTube Integration**: Support for both `youtu.be` and `youtube.com` URLs
 - **Auto-play**: Immediate playback when songs are added to playlist
 - **Mute Control**: Automatic muting for YouTube videos
 - **Playlist Management**: Add/remove songs with real-time updates
 
 ### Content Management
+
 - **Category-based Display**: Dynamic content switching by category
 - **Live Status Detection**: Streaming status monitoring
 - **Image/Video Support**: Multiple display types (image, YouTube, streaming)
@@ -102,17 +109,20 @@ npx prisma generate  # Regenerate Prisma client
 ## 🔧 API Endpoints
 
 ### Admin API (Port: 3001)
+
 - `GET /api/main-visual/user` - Main visual data for user app
 - `POST /api/playlist/user` - Add song to user playlist
 - `POST /api/songs/search` - Search songs by artist and title
 - `POST /api/crawl-streaming` - Check streaming live status
 
 ### User API (Port: 5173)
+
 - All user-facing functionality through React components
 
 ## 🎯 Current Status
 
 ### ✅ Completed Features
+
 - [x] Admin panel with full CRUD operations
 - [x] User application with music player
 - [x] YouTube integration with autoplay
@@ -123,11 +133,13 @@ npx prisma generate  # Regenerate Prisma client
 - [x] Category-based content management
 
 ### 🔄 In Progress
+
 - [ ] Enhanced error handling
 - [ ] Performance optimizations
 - [ ] Additional player features
 
 ### 📋 Planned Features
+
 - [ ] Advanced search functionality
 - [ ] User preferences system
 - [ ] Social sharing features

@@ -5,18 +5,21 @@ React-based user-facing music application with YouTube integration and playlist 
 ## 🎵 Features
 
 ### Music Player System
+
 - **YouTube Integration**: Support for both `youtu.be` and `youtube.com` URLs
 - **Auto-play**: Immediate playback when songs are added to playlist
 - **Mute Control**: Automatic muting for YouTube videos
 - **Playlist Management**: Add/remove songs with real-time updates
 
 ### Main Visual Section
+
 - **Dynamic Content**: Category-based content switching
 - **Multiple Display Types**: Image, YouTube video, streaming content
 - **Live Status Detection**: Real-time streaming status monitoring
 - **Responsive Design**: Mobile-friendly interface
 
 ### Recent Songs Section
+
 - **Song Display**: Show recently added songs with thumbnails
 - **Play Integration**: Direct play button for each song
 - **Artist Information**: Display artist and category information
@@ -72,14 +75,16 @@ npm run preview
 ## 🎯 Key Components
 
 ### MainVisualSection
+
 - **Purpose**: Display main visual content with category switching
-- **Features**: 
+- **Features**:
   - YouTube video integration with autoplay
   - Image display with fallbacks
   - Category-based content filtering
   - Play button integration with playlist
 
 ### PlayerBar
+
 - **Purpose**: Music player controls and current song display
 - **Features**:
   - Play/pause controls
@@ -88,6 +93,7 @@ npm run preview
   - Song information display
 
 ### RecentSongsSection
+
 - **Purpose**: Display recently added songs
 - **Features**:
   - Song thumbnails (YouTube or image)
@@ -98,11 +104,13 @@ npm run preview
 ## 🔧 API Integration
 
 ### Admin API Calls (Port: 3001)
+
 - `GET /api/main-visual/user` - Fetch main visual data
 - `POST /api/playlist/user` - Add song to playlist
 - `POST /api/songs/search` - Search songs by artist and title
 
 ### State Management
+
 - **Zustand Store**: Global player state management
 - **Local State**: Component-specific state
 - **API State**: Server state management
@@ -110,12 +118,14 @@ npm run preview
 ## 🎨 Styling
 
 ### SCSS Architecture
+
 - **Modular Design**: Feature-based SCSS organization
 - **Variables**: Centralized color and spacing variables
 - **Mixins**: Reusable style patterns
 - **Responsive**: Mobile-first approach
 
 ### Key Style Files
+
 - `_main-visual-section.scss` - Main visual styling
 - `_player-bar.scss` - Player controls styling
 - `_recent-songs-section.scss` - Recent songs grid
@@ -124,6 +134,7 @@ npm run preview
 ## 🎵 Player Features
 
 ### YouTube Integration
+
 ```typescript
 // YouTube video configuration
 const opts = {
@@ -145,6 +156,7 @@ const opts = {
 ```
 
 ### Playlist Management
+
 ```typescript
 // Add song to playlist
 const handlePlay = async (song: Song) => {
@@ -157,7 +169,7 @@ const handlePlay = async (song: Song) => {
       songId: song.id,
     }),
   });
-  
+
   if (response.ok) {
     addSong(song); // Add to Zustand store
   }
@@ -167,6 +179,7 @@ const handlePlay = async (song: Song) => {
 ## 🔄 State Management
 
 ### Player Store (Zustand)
+
 ```typescript
 interface PlayerState {
   playlist: PlaylistItem[];
@@ -194,12 +207,14 @@ interface PlayerActions {
 ## 🚀 Performance
 
 ### Optimizations
+
 - **Lazy Loading**: Component-based code splitting
 - **Memoization**: React.memo for expensive components
 - **Debouncing**: API call optimization
 - **Image Optimization**: Thumbnail generation
 
 ### Monitoring
+
 - Error boundary implementation
 - Console logging for debugging
 - Performance monitoring ready
@@ -207,11 +222,13 @@ interface PlayerActions {
 ## 📱 Responsive Design
 
 ### Breakpoints
+
 - **Mobile**: < 768px
 - **Tablet**: 768px - 1024px
 - **Desktop**: > 1024px
 
 ### Features
+
 - Touch-friendly controls
 - Swipe gestures (planned)
 - Adaptive layouts
@@ -220,6 +237,7 @@ interface PlayerActions {
 ## 🔮 Future Enhancements
 
 ### Planned Features
+
 - [ ] Advanced search functionality
 - [ ] User preferences system
 - [ ] Social sharing features
@@ -230,6 +248,7 @@ interface PlayerActions {
 - [ ] Playlist sharing
 
 ### Technical Improvements
+
 - [ ] Service Worker implementation
 - [ ] Advanced caching strategies
 - [ ] Performance monitoring
