@@ -372,7 +372,7 @@ export default function ArtistCreatePage() {
                 onChange={(e) => setCategoryId(e.target.value ? Number(e.target.value) : null)}
               >
                 <option value="">카테고리를 선택하세요</option>
-                {categories.map((category) => (
+                {categories.map((category: any) => (
                   <option key={category.id} value={category.id}>
                     {category.name}
                   </option>

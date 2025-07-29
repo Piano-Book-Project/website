@@ -78,19 +78,19 @@ export default function MainVisualCreatePage() {
   }, [isEdit, mainVisuals.length]);
 
   // 선택된 카테고리 정보
-  const selectedCategory = categories.find((cat) => cat.id === categoryId);
+  const selectedCategory = categories.find((cat: any) => cat.id === categoryId);
   const isLiveCategory = selectedCategory?.name === 'LIVE';
 
   // 선택된 카테고리에 따른 아티스트 필터링
-  const filteredArtists = artists.filter((artist) => artist.categoryId === categoryId);
+  const filteredArtists = artists.filter((artist: any) => artist.categoryId === categoryId);
 
   // 선택된 아티스트에 따른 노래 필터링
-  const filteredSongs = songs.filter((song) => song.artistId === artistId);
+  const filteredSongs = songs.filter((song: any) => song.artistId === artistId);
 
   // 노래 선택 시 이미지 URL과 유튜브 URL 자동 설정
   useEffect(() => {
     if (songId && !isLiveCategory) {
-      const selectedSong = songs.find((song) => song.id === songId);
+      const selectedSong = songs.find((song: any) => song.id === songId);
       if (selectedSong) {
         if (selectedSong.imageUrl) {
           setImageUrl(selectedSong.imageUrl);
@@ -413,7 +413,7 @@ export default function MainVisualCreatePage() {
                       ? '등록된 카테고리가 없습니다'
                       : '카테고리를 선택하세요'}
                 </option>
-                {categories.map((category) => (
+                {categories.map((category: any) => (
                   <option key={category.id} value={category.id}>
                     {category.name}
                   </option>
@@ -464,7 +464,7 @@ export default function MainVisualCreatePage() {
                           : '아티스트를 선택하세요'
                         : '아티스트를 선택하세요'}
                   </option>
-                  {filteredArtists.map((artist) => (
+                  {filteredArtists.map((artist: any) => (
                     <option key={artist.id} value={artist.id}>
                       {artist.name}
                     </option>
@@ -513,7 +513,7 @@ export default function MainVisualCreatePage() {
                           : '노래를 선택하세요'
                         : '노래를 선택하세요'}
                   </option>
-                  {filteredSongs.map((song) => (
+                  {filteredSongs.map((song: any) => (
                     <option key={song.id} value={song.id}>
                       {song.title}
                     </option>

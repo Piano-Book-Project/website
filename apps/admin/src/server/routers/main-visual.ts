@@ -259,7 +259,7 @@ export const mainVisualRouter = router({
 
       // 카테고리별로 그룹화
       const categoryGroups = mainVisuals.reduce(
-        (acc, mv) => {
+        (acc: any, mv: any) => {
           const categoryName = mv.category.name;
           if (!acc[categoryName]) {
             acc[categoryName] = [];

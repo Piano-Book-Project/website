@@ -73,7 +73,7 @@ export default function SongCreatePage() {
   // 선택된 아티스트의 카테고리 자동 설정
   React.useEffect(() => {
     if (artistId) {
-      const selectedArtist = artists.find((artist) => artist.id === artistId);
+      const selectedArtist = artists.find((artist: any) => artist.id === artistId);
       if (selectedArtist) {
         setCategoryId(selectedArtist.categoryId);
       }
@@ -392,7 +392,7 @@ export default function SongCreatePage() {
                 onChange={(e) => setArtistId(e.target.value ? Number(e.target.value) : null)}
               >
                 <option value="">아티스트를 선택하세요</option>
-                {artists.map((artist) => (
+                {artists.map((artist: any) => (
                   <option key={artist.id} value={artist.id}>
                     {artist.name}
                   </option>
@@ -421,7 +421,7 @@ export default function SongCreatePage() {
                 border: '1px solid #1A1A1A',
               }}
             >
-              {categoryId ? categories.find((cat) => cat.id === categoryId)?.name || '-' : '-'}
+              {categoryId ? categories.find((cat: any) => cat.id === categoryId)?.name || '-' : '-'}
             </td>
           </tr>
           <tr>
