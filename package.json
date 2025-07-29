@@ -15,12 +15,22 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "prisma": {
       "seed": "ts-node apps/admin/prisma/seed.ts"
-    }
+    },
+    "prepare": "husky"
   },
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "*.{json,md,scss,css}": [
+      "prettier --write"
+    ]
+  },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
