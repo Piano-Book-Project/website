@@ -525,14 +525,7 @@ export default function PostsPage() {
         // 아티스트 검색/필터/테이블
         <>
           {/* 검색바/필터 */}
-          <div
-            style={{
-              background: 'rgb(38, 38, 38)',
-              padding: '12px 24px',
-              position: 'relative',
-              marginBottom: 16,
-            }}
-          >
+          <div style={{ background: '#262626', padding: '12px 24px', position: 'relative' }}>
             <div
               style={{
                 display: 'flex',
@@ -547,13 +540,13 @@ export default function PostsPage() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
-                  background: 'rgb(28, 28, 28)',
-                  color: 'rgb(84, 84, 84)',
+                  background: '#1C1C1C',
+                  color: '#545454',
                   border: 'none',
                   borderRadius: 4,
                   height: 40,
                   fontSize: 12,
-                  padding: '0px 16px',
+                  padding: '0 16px',
                   width: 260,
                   outline: 'none',
                 }}
@@ -561,13 +554,13 @@ export default function PostsPage() {
               <button
                 className="btn-anim"
                 style={{
-                  background: 'rgb(47, 47, 47)',
-                  color: 'rgb(133, 133, 133)',
+                  background: '#2F2F2F',
+                  color: '#858585',
                   fontSize: 12,
                   border: 'none',
                   borderRadius: 4,
                   height: 40,
-                  padding: '0px 24px',
+                  padding: '0 24px',
                   display: 'flex',
                   alignItems: 'center',
                   fontWeight: 500,
@@ -577,18 +570,18 @@ export default function PostsPage() {
                 }}
                 onClick={() => setSearchTerm('')}
               >
-                초기화
+                검색
               </button>
               <button
                 className="btn-anim"
                 style={{
-                  background: filterActive ? 'rgb(51, 121, 183)' : 'rgb(47, 47, 47)',
-                  color: filterActive ? '#fff' : 'rgb(133, 133, 133)',
+                  background: filterOpen || filterActive ? '#3379B7' : '#2F2F2F',
+                  color: filterOpen || filterActive ? '#C7DBEC' : '#858585',
                   fontSize: 12,
                   border: 'none',
                   borderRadius: 4,
                   height: 40,
-                  padding: '0px 24px',
+                  padding: '0 24px',
                   display: 'flex',
                   alignItems: 'center',
                   fontWeight: 500,
@@ -598,12 +591,66 @@ export default function PostsPage() {
                   justifyContent: 'center',
                   minWidth: 82,
                 }}
-                onClick={() => setFilterOpen(!filterOpen)}
+                onClick={() => setFilterOpen((v) => !v)}
               >
                 <span className="nowrap">필터</span>
-                <IconChevronDown />
               </button>
-              <div style={{ flex: '1 1 0%' }}></div>
+              <div style={{ flex: 1 }} />
+              {filterOpen && (
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: 10,
+                    justifyContent: 'flex-end',
+                    alignItems: 'center',
+                  }}
+                >
+                  <button
+                    className={
+                      filterOpen ? 'btn-anim fade-anim' : 'btn-anim fade-anim fade-anim-hide'
+                    }
+                    style={{
+                      width: 82,
+                      height: 40,
+                      background: '#B73333',
+                      color: '#C7DBEC',
+                      borderRadius: 4,
+                      fontSize: 14,
+                      fontWeight: 500,
+                      border: 'none',
+                      cursor: 'pointer',
+                    }}
+                    onClick={() => {
+                      setFilterOpen(false);
+                      setFilterActive(false);
+                    }}
+                  >
+                    취소
+                  </button>
+                  <button
+                    className={
+                      filterOpen ? 'btn-anim fade-anim' : 'btn-anim fade-anim fade-anim-hide'
+                    }
+                    style={{
+                      width: 82,
+                      height: 40,
+                      background: '#3379B7',
+                      color: '#C7DBEC',
+                      borderRadius: 4,
+                      fontSize: 14,
+                      fontWeight: 500,
+                      border: 'none',
+                      cursor: 'pointer',
+                    }}
+                    onClick={() => {
+                      setFilterOpen(false);
+                      setFilterActive(true);
+                    }}
+                  >
+                    저장
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* 필터 드롭다운 */}

@@ -5,7 +5,7 @@
 .contact-page,
 .about-page {
   min-height: calc(100vh - 80px); // PlayerBar 높이 제외
-  padding: 24px;
+  padding: 0px;
   background: #1f1f22;
   color: #fff;
 }
@@ -47,7 +47,7 @@
   .piano-books-page,
   .contact-page,
   .about-page {
-    padding: 16px;
+    padding: 0px;
   }
 
   .price-content,
