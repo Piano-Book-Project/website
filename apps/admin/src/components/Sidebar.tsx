@@ -1,6 +1,6 @@
 'use client';
 import { usePathname, useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React from 'react';
 
 const menuItems = [
   { label: '대시보드', path: '/dashboard', icon: null },
@@ -18,105 +18,52 @@ export default function Sidebar({ username }: { username: string }) {
   const router = useRouter();
   const pathname = usePathname();
   const firstLetter = username ? username[0].toUpperCase() : '?';
-  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
-  const getMenuItemStyle = (item: any, isHovered: boolean, isActive: boolean) => ({
-    padding: '10px 24px',
-    color: isActive ? '#e24' : isHovered ? '#e24' : '#fff',
-    fontWeight: isActive ? 700 : 400,
-    cursor: 'pointer',
-    background: isActive ? 'rgba(226,36,68,0.08)' : isHovered ? 'rgba(226,36,68,0.04)' : 'none',
-    borderLeft: isActive ? '4px solid #e24' : '4px solid transparent',
-    transition: 'all 0.18s cubic-bezier(.4,0,.2,1)',
-    userSelect: 'none' as const,
-    display: 'flex',
-    alignItems: 'center',
-    gap: 12,
-  });
+  const handleMenuClick = (path: string) => {
+    router.push(path);
+  };
 
   return (
-    <aside
-      style={{
-        width: 220,
-        background: '#232226',
-        color: '#fff',
-        height: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        padding: '24px 0',
-        boxSizing: 'border-box',
-        borderRight: '1px solid #63676F', // 변경: 외각선 색상
-      }}
-    >
+    <aside className="sidebar">
       {/* Top: Avatar and menu */}
-      <div style={{ display: 'flex', alignItems: 'center', padding: '0 24px 32px 24px' }}>
-        <div
-          style={{
-            width: 36,
-            height: 36,
-            borderRadius: '50%',
-            background: '#444',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 700,
-            fontSize: 18,
-          }}
-        >
-          {firstLetter}
-        </div>
-        <div style={{ flex: 1 }} />
-        <div style={{ fontSize: 24, color: '#aaa', cursor: 'pointer' }}>⋯</div>
+      <div className="sidebar__header">
+        <div className="sidebar__avatar">{firstLetter}</div>
+        <div className="sidebar__spacer" />
+        <div className="sidebar__menu-button">⋯</div>
       </div>
+
       {/* Menu */}
-      <nav style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <nav className="sidebar__nav">
         {menuItems
           .filter((m) => m.section !== 'bottom')
-          .map((item, idx) => {
+          .map((item) => {
             const isActive = pathname === item.path;
-            const isHovered = hoveredIdx === idx;
             return (
               <div
                 key={item.path}
-                onClick={() => router.push(item.path)}
-                onMouseEnter={() => setHoveredIdx(idx)}
-                onMouseLeave={() => setHoveredIdx(null)}
-                style={getMenuItemStyle(item, isHovered, isActive)}
+                onClick={() => handleMenuClick(item.path)}
+                className={`sidebar__menu-item${isActive ? ' active' : ''}`}
               >
-                {item.icon && (
-                  <span style={{ display: 'flex', alignItems: 'center' }}>{item.icon}</span>
-                )}
-                <span style={{ flex: 1, minWidth: 0 }}>{item.label}</span>
+                {item.icon && <span className="sidebar__menu-item__icon">{item.icon}</span>}
+                <span className="sidebar__menu-item__label">{item.label}</span>
               </div>
             );
           })}
-        <div style={{ borderTop: '1px solid #333', margin: '18px 0 0 0' }} />
+
+        <div className="sidebar__divider" />
+
         {menuItems
           .filter((m) => m.section === 'bottom')
-          .map((item, idx) => {
-            const realIdx = idx + 100;
+          .map((item) => {
             const isActive = pathname === item.path;
-            const isHovered = hoveredIdx === realIdx;
             return (
               <div
                 key={item.path}
-                onClick={() => router.push(item.path)}
-                onMouseEnter={() => setHoveredIdx(realIdx)}
-                onMouseLeave={() => setHoveredIdx(null)}
-                style={{
-                  ...getMenuItemStyle(item, isHovered, isActive),
-                  color: isActive ? '#fff' : isHovered ? '#e24' : '#ccc',
-                  background: isActive
-                    ? 'rgba(255,255,255,0.06)'
-                    : isHovered
-                      ? 'rgba(226,36,68,0.04)'
-                      : 'none',
-                }}
+                onClick={() => handleMenuClick(item.path)}
+                className={`sidebar__bottom-menu-item${isActive ? ' active' : ''}`}
               >
-                {item.icon && (
-                  <span style={{ display: 'flex', alignItems: 'center' }}>{item.icon}</span>
-                )}
-                <span style={{ flex: 1, minWidth: 0 }}>{item.label}</span>
+                {item.icon && <span className="sidebar__bottom-menu-item__icon">{item.icon}</span>}
+                <span className="sidebar__bottom-menu-item__label">{item.label}</span>
               </div>
             );
           })}

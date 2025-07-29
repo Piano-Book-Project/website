@@ -1,11 +1,10 @@
 import { createTRPCReact } from '@trpc/react-query';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { FaHeart, FaEllipsisH, FaPlay } from 'react-icons/fa';
 import YouTube from 'react-youtube';
 import type { AppRouter } from 'schema/src/trpc';
 import { usePlayerStore } from '../stores/playerStore';
 import { getYoutubeThumbnail } from '../utils';
-import './MainVisualSection.scss';
 
 const trpc = createTRPCReact<AppRouter>();
 const categories = ['K-POP', 'J-POP', 'POP', 'OST'];
@@ -21,7 +20,27 @@ export default function MainVisualSection() {
   const featuredSong = {
     id: 1,
     title: '더미 곡',
-    artist: { id: 1, name: '더미 아티스트', category: { id: 1, name: 'K-POP' } },
+    artist: {
+      id: 1,
+      name: '더미 아티스트',
+      category: {
+        id: 1,
+        code: 'CT-001',
+        status: 'active',
+        name: 'K-POP',
+        order: 1,
+        createdAt: '',
+        createdBy: '',
+        updatedAt: '',
+        updatedBy: '',
+        isActive: true,
+      },
+      createdAt: '',
+      createdBy: '',
+      updatedAt: '',
+      updatedBy: '',
+      isActive: true,
+    },
     imageUrl: '',
     youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     createdAt: new Date().toISOString(),
@@ -58,7 +77,7 @@ export default function MainVisualSection() {
   };
 
   return (
-    <section className="main-visual-section">
+    <section className={`main-visual-section${playing ? ' playing' : ''}`}>
       <div className="main-visual__category-list">
         {categories.map((cat) => (
           <div
@@ -78,14 +97,7 @@ export default function MainVisualSection() {
       </div>
       <div className="main-visual__image-wrap">
         {/* 썸네일 이미지 */}
-        {thumbnail && (
-          <img
-            src={thumbnail}
-            alt={showSong?.title}
-            className="main-visual__image"
-            style={{ opacity: playing ? 0 : 1, transition: 'opacity 0.4s' }}
-          />
-        )}
+        {thumbnail && <img src={thumbnail} alt={showSong?.title} className="main-visual__image" />}
         {/* Play 버튼 클릭 시 유튜브 영상 자동재생 (mute, controls X, loop) */}
         {playing && videoId && (
           <div className="main-visual__youtube-embed">
@@ -132,7 +144,7 @@ export default function MainVisualSection() {
             <FaHeart />
           </button>
           <button className="main-visual__play-btn" onClick={handlePlay}>
-            <FaPlay style={{ marginRight: 8 }} />
+            <FaPlay className="main-visual__play-icon" />
             Play
           </button>
         </div>

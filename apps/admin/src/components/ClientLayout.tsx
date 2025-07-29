@@ -7,12 +7,13 @@ import Sidebar from './Sidebar';
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isLogin = pathname.startsWith('/login');
+
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
+    <div className={`client-layout${isLogin ? ' client-layout--login' : ''}`}>
       {!isLogin && <Sidebar username="sysadmin" />}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div className="client-layout__main">
         {!isLogin && <Header />}
-        <main style={{ flex: 1 }}>{children}</main>
+        <main className="client-layout__content">{children}</main>
       </div>
     </div>
   );

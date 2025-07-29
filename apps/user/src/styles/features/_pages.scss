@@ -1,0 +1,66 @@
+// Page Layout Styles
+.home-page,
+.price-page,
+.piano-books-page,
+.contact-page,
+.about-page {
+  min-height: calc(100vh - 80px); // PlayerBar 높이 제외
+  padding: 24px;
+  background: #1f1f22;
+  color: #fff;
+}
+
+// Page Content Styles
+.price-content,
+.piano-books-content,
+.contact-content,
+.about-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.price-content h1,
+.piano-books-content h1,
+.contact-content h1,
+.about-content h1 {
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 16px;
+  color: #fff;
+}
+
+.price-content p,
+.piano-books-content p,
+.contact-content p,
+.about-content p {
+  font-size: 16px;
+  color: #bcbcbc;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+// 반응형
+@media (max-width: 768px) {
+  .home-page,
+  .price-page,
+  .piano-books-page,
+  .contact-page,
+  .about-page {
+    padding: 16px;
+  }
+
+  .price-content,
+  .piano-books-content,
+  .contact-content,
+  .about-content {
+    padding: 0 16px;
+  }
+
+  .price-content h1,
+  .piano-books-content h1,
+  .contact-content h1,
+  .about-content h1 {
+    font-size: 24px;
+  }
+}

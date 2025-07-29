@@ -17,6 +17,7 @@ import {
 import YouTube from 'react-youtube';
 import type { AppRouter } from 'schema/src/trpc';
 import { usePlayerStore } from '../stores/playerStore';
+import type { PlaylistItem, YouTubeEvent, YouTubePlayer } from '../types';
 import { CoverImage } from './CoverImage';
 
 const trpc = createTRPCReact<AppRouter>();
@@ -41,7 +42,7 @@ export default function PlayerBar() {
   useEffect(() => {
     if (playlistData) {
       const userPlaylist = playlistData.filter((item: any) => item.userId === userId);
-      setPlaylist(userPlaylist);
+      setPlaylist(userPlaylist as unknown as PlaylistItem[]);
     }
   }, [playlistData, userId, setPlaylist]);
 
@@ -90,7 +91,7 @@ export default function PlayerBar() {
   const [isShuffling, setIsShuffling] = useState(false);
   const [isRepeating, setIsRepeating] = useState(false);
   const [liked, setLiked] = useState(false);
-  const playerRef = useRef<any | null>(null);
+  const playerRef = useRef<YouTubePlayer | null>(null);
   const volumeBarRef = useRef<HTMLDivElement>(null);
   const volumeBtnRef = useRef<HTMLButtonElement>(null);
   const [volumeModalPos, setVolumeModalPos] = useState<{ top: number; left: number }>({
@@ -98,65 +99,82 @@ export default function PlayerBar() {
     left: 0,
   });
   const volumeTrackRef = useRef<HTMLDivElement>(null);
-  const [duration, setDuration] = useState(0);
 
-  // 유튜브 관련
+  // 유튜브 ID 추출
   const getYoutubeId = (url?: string | null): string | undefined => {
     if (!url) return undefined;
     const match = url.match(/[?&]v=([^&#]+)/);
     return match ? match[1] : undefined;
   };
+
   const videoId = getYoutubeId(currentSong?.youtubeUrl);
+  const duration = 0; // 실제로는 유튜브 API에서 가져와야 함
 
-  // 유튜브 이벤트 핸들러
-  const onReady = (e: { target: any }) => {
+  // 유튜브 플레이어 이벤트 핸들러
+  const onReady = (e: YouTubeEvent) => {
     playerRef.current = e.target;
-    playerRef.current?.setVolume?.(volume);
-    setDuration(e.target.getDuration());
-    setCurrentTime(e.target.getCurrentTime());
-  };
-  const onStateChange = (e: { data: number }) => {
-    setIsPlaying(e.data === 1);
   };
 
-  // 볼륨/진행바/컨트롤 핸들러
+  const onStateChange = (e: YouTubeEvent) => {
+    if (!playerRef.current) return;
+    const playerState = e.data;
+    if (playerState === 1) {
+      // 재생 중
+      setIsPlaying(true);
+    } else if (playerState === 2) {
+      // 일시정지
+      setIsPlaying(false);
+    }
+  };
+
+  // 볼륨 바 외부 클릭 시 닫기
   useEffect(() => {
-    if (playerRef.current) playerRef.current.setVolume?.(volume);
-  }, [volume]);
-  useEffect(() => {
-    if (!showVolumeBar) return;
     const handleClick = (e: MouseEvent) => {
-      if (volumeBarRef.current && !volumeBarRef.current.contains(e.target as Node))
+      if (
+        showVolumeBar &&
+        volumeBarRef.current &&
+        !volumeBarRef.current.contains(e.target as Node) &&
+        volumeBtnRef.current &&
+        !volumeBtnRef.current.contains(e.target as Node)
+      ) {
         setShowVolumeBar(false);
+      }
     };
+
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, [showVolumeBar]);
+
+  // 볼륨 버튼 위치 계산
   useEffect(() => {
-    if (showVolumeBar && volumeBtnRef.current && volumeBarRef.current) {
-      const btnRect = volumeBtnRef.current.getBoundingClientRect();
-      const modalRect = volumeBarRef.current.getBoundingClientRect();
-      const gap = 8;
+    if (volumeBtnRef.current) {
+      const rect = volumeBtnRef.current.getBoundingClientRect();
       setVolumeModalPos({
-        top: btnRect.top - modalRect.height - gap,
-        left: btnRect.left + btnRect.width / 2 - modalRect.width / 2,
+        top: rect.top - 280,
+        left: rect.left - 30,
       });
     }
   }, [showVolumeBar]);
+
   const handlePlayPause = () => {
     if (!playerRef.current) return;
-    if (isPlaying) playerRef.current.pauseVideo?.();
-    else playerRef.current.playVideo?.();
+    if (isPlaying) {
+      playerRef.current.pauseVideo();
+    } else {
+      playerRef.current.playVideo();
+    }
   };
+
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    if (!playerRef.current || typeof playerRef.current.seekTo !== 'function' || !duration) return;
+    if (!playerRef.current || !duration) return;
     const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const percent = x / rect.width;
-    const seekTime = percent * duration;
-    playerRef.current.seekTo(seekTime, true);
-    setCurrentTime(seekTime);
+    const clickX = e.clientX - rect.left;
+    const percentage = clickX / rect.width;
+    const newTime = percentage * duration;
+    playerRef.current.seekTo(newTime, true);
+    setCurrentTime(newTime);
   };
+
   const increaseVolume = () => setVolume(Math.min(volume + 10, 100));
   const decreaseVolume = () => setVolume(Math.max(volume - 10, 0));
   const handleVolumeDrag = (
@@ -164,15 +182,16 @@ export default function PlayerBar() {
   ) => {
     if (!volumeTrackRef.current) return;
     const rect = volumeTrackRef.current.getBoundingClientRect();
-    const y = 'touches' in e ? e.touches[0].clientY : e.clientY;
-    let newVolume = 100 - ((y - rect.top) / rect.height) * 100;
-    newVolume = Math.round(Math.max(0, Math.min(100, newVolume)));
-    setVolume(newVolume);
-    playerRef.current?.setVolume?.(newVolume);
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    const clickY = rect.bottom - clientY;
+    const percentage = Math.max(0, Math.min(1, clickY / rect.height));
+    setVolume(Math.round(percentage * 100));
   };
+
   const handleVolumeMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     handleVolumeDrag(e);
-    const onMouseMove = (moveEvent: MouseEvent) => handleVolumeDrag(moveEvent as any);
+    const onMouseMove = (moveEvent: MouseEvent) =>
+      handleVolumeDrag(moveEvent as unknown as React.MouseEvent<HTMLDivElement>);
     const onMouseUp = () => {
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
@@ -180,34 +199,26 @@ export default function PlayerBar() {
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
   };
+
   const formatTime = (s: number) => {
-    if (!s || isNaN(s)) return '0:00';
-    const m = Math.floor(s / 60);
-    const sec = Math.floor(s % 60)
-      .toString()
-      .padStart(2, '0');
-    return `${m}:${sec}`;
+    const mins = Math.floor(s / 60);
+    const secs = Math.floor(s % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   // 예외처리: 플레이리스트 없음
   if (!playlist || playlist.length === 0) {
     return (
-      <div
-        className="player-bar player-bar-loading"
-        style={{ height: 65, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-      >
-        <span style={{ color: '#bcbcbc', fontSize: 16 }}>선택하신 곡이 없습니다.</span>
+      <div className="player-bar player-bar-loading">
+        <span>선택하신 곡이 없습니다.</span>
       </div>
     );
   }
   // 예외처리: 곡 정보 없음
   if (!currentSong) {
     return (
-      <div
-        className="player-bar player-bar-loading"
-        style={{ height: 65, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-      >
-        <span style={{ color: '#bcbcbc', fontSize: 16 }}>곡 정보를 불러올 수 없습니다.</span>
+      <div className="player-bar player-bar-loading">
+        <span>곡 정보를 불러올 수 없습니다.</span>
       </div>
     );
   }
@@ -242,7 +253,7 @@ export default function PlayerBar() {
             <div className="player-bar__title-row">
               <span className="player-bar__title">{currentSong.title ?? 'Unknown'}</span>
               <button
-                className="player-bar__icon-small player-bar__a11y-btn"
+                className={`player-bar__icon-small player-bar__a11y-btn${liked ? ' active' : ''}`}
                 aria-label={liked ? 'Remove from favorites' : 'Add to favorites'}
                 aria-pressed={liked}
                 tabIndex={0}
@@ -250,14 +261,7 @@ export default function PlayerBar() {
                 onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setLiked((v) => !v)}
                 type="button"
               >
-                <FaHeart
-                  style={{
-                    marginLeft: 8,
-                    marginRight: 8,
-                    color: liked ? '#EF2F62' : undefined,
-                    transition: 'color 0.2s',
-                  }}
-                />
+                <FaHeart />
                 <span className="sr-only">
                   {liked ? 'Remove from favorites' : 'Add to favorites'}
                 </span>
@@ -292,18 +296,18 @@ export default function PlayerBar() {
             </button>
             <button
               className="player-bar__icon player-bar__a11y-btn"
-              aria-label="Previous"
+              aria-label="Previous track"
               tabIndex={0}
-              type="button"
               onClick={handlePrev}
+              onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handlePrev()}
+              type="button"
             >
               <FaStepBackward />
-              <span className="sr-only">Previous</span>
+              <span className="sr-only">Previous track</span>
             </button>
             <button
-              className={`player-bar__icon player-bar__a11y-btn${isPlaying ? ' active' : ''}`}
+              className="player-bar__play-btn player-bar__a11y-btn"
               aria-label={isPlaying ? 'Pause' : 'Play'}
-              aria-pressed={isPlaying}
               tabIndex={0}
               onClick={handlePlayPause}
               onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handlePlayPause()}
@@ -314,13 +318,14 @@ export default function PlayerBar() {
             </button>
             <button
               className="player-bar__icon player-bar__a11y-btn"
-              aria-label="Next"
+              aria-label="Next track"
               tabIndex={0}
-              type="button"
               onClick={handleNext}
+              onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleNext()}
+              type="button"
             >
               <FaStepForward />
-              <span className="sr-only">Next</span>
+              <span className="sr-only">Next track</span>
             </button>
             <button
               className={`player-bar__icon player-bar__a11y-btn${isRepeating ? ' active' : ''}`}
@@ -331,17 +336,16 @@ export default function PlayerBar() {
               onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setIsRepeating((v) => !v)}
               type="button"
             >
-              <FaRedo style={{ color: isRepeating ? '#EF2F62' : undefined }} />
+              <FaRedo />
               <span className="sr-only">{isRepeating ? 'Disable repeat' : 'Enable repeat'}</span>
             </button>
           </div>
-          <div className="player-bar__progress-section progress-section-pt8">
+          <div className="player-bar__progress">
             <div className="player-bar__progress-time">{formatTime(currentTime)}</div>
             <div className="player-bar__progress-bar-wrapper">
               <div
                 className="player-bar__progress-bar"
                 onClick={handleProgressClick}
-                style={{ cursor: 'pointer' }}
                 role="slider"
                 aria-valuenow={Math.round(currentTime)}
                 aria-valuemin={0}
@@ -365,7 +369,6 @@ export default function PlayerBar() {
                   className="player-bar__progress-bar-fill"
                   style={{
                     width: duration ? `${(currentTime / duration) * 100}%` : '0%',
-                    transition: 'width 0.3s cubic-bezier(.4,0,.2,1)',
                   }}
                 />
               </div>

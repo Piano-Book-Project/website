@@ -1,35 +1,53 @@
-import React from 'react';
+import { Component } from 'react';
 import type { ReactNode } from 'react';
-import { logError } from '../utils/logger';
 
-interface Props {
+interface ErrorBoundaryProps {
   children: ReactNode;
+  fallback?: ReactNode;
 }
 
-interface State {
+interface ErrorBoundaryState {
   hasError: boolean;
+  error?: Error;
 }
 
-class ErrorBoundary extends React.Component<Props, State> {
-  constructor(props: Props) {
+interface ErrorInfo {
+  componentStack: string;
+}
+
+export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError() {
-    return { hasError: true };
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error) {
-    logError(error);
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('ErrorBoundary caught an error:', error, errorInfo);
   }
 
   render() {
     if (this.state.hasError) {
-      return <h1>문제가 발생했습니다. 새로고침 해주세요.</h1>;
+      return (
+        this.props.fallback || (
+          <div className="error-boundary">
+            <div className="error-boundary__content">
+              <h2 className="error-boundary__title">Something went wrong</h2>
+              <p className="error-boundary__message">
+                We&apos;re sorry, but something went wrong. Please try refreshing the page.
+              </p>
+              <button className="error-boundary__button" onClick={() => window.location.reload()}>
+                Refresh Page
+              </button>
+            </div>
+          </div>
+        )
+      );
     }
+
     return this.props.children;
   }
 }
-
-export default ErrorBoundary;

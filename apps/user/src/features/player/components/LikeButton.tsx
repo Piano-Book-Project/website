@@ -48,7 +48,6 @@ export function LikeButton({ liked, onClick }: { liked: boolean; onClick: () => 
       onMouseDown={() => setActive(true)}
       onMouseUp={() => setActive(false)}
       onMouseLeave={() => setActive(false)}
-      style={{ color: '#fcfcfc' }}
     >
       <span className="like-button__icon">{liked ? HeartFill : HeartOutline}</span>
     </button>

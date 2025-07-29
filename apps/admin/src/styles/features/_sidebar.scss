@@ -1,0 +1,126 @@
+.sidebar {
+  width: 220px;
+  background: #232226;
+  color: #fff;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 0;
+  box-sizing: border-box;
+  border-right: 1px solid #63676f;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    padding: 0 24px 32px 24px;
+  }
+
+  &__avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+  }
+
+  &__spacer {
+    flex: 1;
+  }
+
+  &__menu-button {
+    font-size: 24px;
+    color: #aaa;
+    cursor: pointer;
+    transition: color 0.2s;
+
+    &:hover {
+      color: #fff;
+    }
+  }
+
+  &__nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__menu-item {
+    padding: 10px 24px;
+    color: #fff;
+    font-weight: 400;
+    cursor: pointer;
+    background: none;
+    border-left: 4px solid transparent;
+    transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    &:hover {
+      color: #e24;
+      background: rgba(226, 36, 68, 0.04);
+    }
+
+    &.active {
+      color: #e24;
+      font-weight: 700;
+      background: rgba(226, 36, 68, 0.08);
+      border-left-color: #e24;
+    }
+
+    &__icon {
+      display: flex;
+      align-items: center;
+    }
+
+    &__label {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  &__divider {
+    border-top: 1px solid #333;
+    margin: 18px 0 0 0;
+  }
+
+  &__bottom-menu-item {
+    padding: 10px 24px;
+    color: #ccc;
+    font-weight: 400;
+    cursor: pointer;
+    background: none;
+    border-left: 4px solid transparent;
+    transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    &:hover {
+      color: #e24;
+      background: rgba(226, 36, 68, 0.04);
+    }
+
+    &.active {
+      color: #fff;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    &__icon {
+      display: flex;
+      align-items: center;
+    }
+
+    &__label {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+}

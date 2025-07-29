@@ -1,0 +1,30 @@
+.more-menu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.more-menu__button {
+  background: none;
+  border: none;
+  color: #bcbcbc;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.more-menu__button:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.more-menu__icon {
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 1;
+}

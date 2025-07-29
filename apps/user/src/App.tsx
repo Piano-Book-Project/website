@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import Header from './components/Header';
 import SideNav from './components/SideNav';
@@ -13,6 +13,7 @@ function App() {
 
   // 모바일 반응형 대응 (SSR/CSR 모두 안전하게)
   const [mobile, setMobile] = useState(isMobile);
+
   useEffect(() => {
     const handleResize = () => setMobile(window.innerWidth <= 767);
     window.addEventListener('resize', handleResize);
@@ -32,16 +33,16 @@ function App() {
     }
   };
 
+  const handleMenuToggle = () => {
+    setMenuOpen(true);
+    setShowMenu(true);
+  };
+
   return (
-    <div style={{ minHeight: '100vh', background: '#171719' }}>
+    <div className="app">
       {mobile ? (
         <>
-          <Header
-            onMenuClick={() => {
-              setMenuOpen(true);
-              setShowMenu(true);
-            }}
-          />
+          <Header onMenuClick={handleMenuToggle} />
           {showMenu && (
             <div
               className={`side-nav__overlay${menuOpen ? '' : ' closing'}`}
@@ -54,7 +55,7 @@ function App() {
       ) : (
         <SideNav />
       )}
-      <div style={{ marginLeft: mobile ? 0 : 240, padding: 0 }}>
+      <div className={`app__content${mobile ? ' app__content--mobile' : ''}`}>
         <Outlet />
       </div>
       <PlayerBar />

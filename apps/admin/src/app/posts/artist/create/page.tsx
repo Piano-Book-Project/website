@@ -2,61 +2,58 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import React from 'react';
-import { trpc } from '../../../utils/trpc';
+import { trpc } from '../../../../utils/trpc';
 
-export default function CategoryCreatePage() {
+export default function ArtistCreatePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isEdit = searchParams.get('edit') === '1';
   const editId = searchParams.get('id');
   const editName = searchParams.get('name') || '';
 
-  // 카테고리 상세 fetch (수정 모드)
+  // 아티스트 상세 fetch (수정 모드)
   const {
-    data: category,
-    isLoading: loadingCategory,
-    error: errorCategory,
-  } = trpc.category.get.useQuery(isEdit && editId ? { id: Number(editId) } : { id: -1 }, {
+    data: artist,
+    isLoading: loadingArtist,
+    error: errorArtist,
+  } = trpc.artist.get.useQuery(isEdit && editId ? { id: Number(editId) } : { id: -1 }, {
     enabled: isEdit && !!editId,
   });
 
-  // 리스트 전체 fetch (No, Code 계산용)
+  // 카테고리 리스트 fetch (카테고리 선택용)
   const { data: categories = [] } = trpc.category.list.useQuery();
+
+  // 아티스트 리스트 fetch (No 계산용)
+  const { data: artists = [] } = trpc.artist.list.useQuery();
 
   // 입력값 상태
   const [name, setName] = React.useState(editName);
-  const [status, setStatus] = React.useState('active');
+  const [description, setDescription] = React.useState('');
+  const [imageUrl, setImageUrl] = React.useState('');
+  const [categoryId, setCategoryId] = React.useState<number | null>(null);
+  const [isActive, setIsActive] = React.useState(true);
   const [loading, setLoading] = React.useState(false);
-  const createCategory = trpc.category.create.useMutation();
-  const updateCategory = trpc.category.update.useMutation();
+  const createArtist = trpc.artist.create.useMutation();
+  const updateArtist = trpc.artist.update.useMutation();
 
   // 최초/마지막 생성자/일자, 곡수 등 동기화
   React.useEffect(() => {
-    if (isEdit && category) {
-      setName(category.name || '');
-      setStatus(category.status || 'active');
+    if (isEdit && artist) {
+      setName(artist.name || '');
+      setDescription(artist.description || '');
+      setImageUrl(artist.imageUrl || '');
+      setCategoryId(artist.categoryId || null);
+      setIsActive(artist.isActive ?? true);
     }
-  }, [isEdit, category]);
+  }, [isEdit, artist]);
 
-  // No, Code, 곡수 등 계산
-  const no =
-    isEdit && category
-      ? category.order
-      : categories.length > 0
-        ? (categories[categories.length - 1].order ?? categories.length) + 1
-        : 1;
-  const code = isEdit && category ? category.code : `CT-${String(no).padStart(3, '0')}`;
-  const songCount =
-    isEdit && category
-      ? (category.artists?.reduce(
-          (sum: number, artist: any) => sum + (artist.songs?.length || 0),
-          0,
-        ) ?? '-')
-      : '-';
-  const createdAt = isEdit && category ? category.createdAt : undefined;
-  const createdBy = isEdit && category ? category.createdBy : undefined;
-  const updatedAt = isEdit && category ? category.updatedAt : undefined;
-  const updatedBy = isEdit && category ? category.updatedBy : undefined;
+  // No, 곡수 등 계산
+  const no = isEdit && artist ? artist.id : artists.length > 0 ? artists.length + 1 : 1;
+  const songCount = isEdit && artist ? artist.songs?.length || 0 : 0;
+  const createdAt = isEdit && artist ? artist.createdAt : undefined;
+  const createdBy = isEdit && artist ? artist.createdBy : undefined;
+  const updatedAt = isEdit && artist ? artist.updatedAt : undefined;
+  const updatedBy = isEdit && artist ? artist.updatedBy : undefined;
 
   const now = new Date();
   const nowStr = now.toLocaleString('ko-KR', {
@@ -68,50 +65,61 @@ export default function CategoryCreatePage() {
   });
 
   const handleSave = async () => {
-    if (!name.trim()) return alert('카테고리 명칭을 입력하세요.');
+    if (!name.trim()) return alert('아티스트 명칭을 입력하세요.');
+    if (!categoryId) return alert('카테고리를 선택하세요.');
     setLoading(true);
     try {
-      if (isEdit && category) {
+      if (isEdit && artist) {
         // 수정 모드
-        console.log('Updating category with data:', {
-          id: category.id,
+        console.log('Updating artist with data:', {
+          id: artist.id,
           name,
-          status,
+          description,
+          imageUrl,
+          categoryId,
           updatedBy: 'sysadmin',
-          isActive: status === 'active',
+          isActive,
         });
-        await updateCategory.mutateAsync({
-          id: category.id,
+        await updateArtist.mutateAsync({
+          id: artist.id,
           name,
+          description,
+          imageUrl,
+          categoryId,
           updatedBy: 'sysadmin',
-          isActive: status === 'active',
+          isActive,
         });
       } else {
         // 생성 모드
-        console.log('Creating category with data:', {
+        console.log('Creating artist with data:', {
           name,
+          description,
+          imageUrl,
+          categoryId,
           createdBy: 'sysadmin',
-          isActive: status === 'active',
+          isActive,
         });
-        await createCategory.mutateAsync({
+        await createArtist.mutateAsync({
           name,
+          description,
+          imageUrl,
+          categoryId,
           createdBy: 'sysadmin',
-          isActive: status === 'active',
+          isActive,
         });
       }
-      router.push('/categories');
+      router.push('/posts?tab=artist');
     } catch (e) {
-      console.error('Category save error:', e);
-      alert(isEdit ? '카테고리 수정에 실패했습니다.' : '카테고리 생성에 실패했습니다.');
+      console.error('Artist save error:', e);
+      alert(isEdit ? '아티스트 수정에 실패했습니다.' : '아티스트 생성에 실패했습니다.');
     } finally {
       setLoading(false);
     }
   };
 
-  if (isEdit && loadingCategory)
-    return <div style={{ color: '#fff', padding: 32 }}>로딩 중...</div>;
-  if (isEdit && errorCategory)
-    return <div style={{ color: '#fff', padding: 32 }}>카테고리 정보를 불러올 수 없습니다.</div>;
+  if (isEdit && loadingArtist) return <div style={{ color: '#fff', padding: 32 }}>로딩 중...</div>;
+  if (isEdit && errorArtist)
+    return <div style={{ color: '#fff', padding: 32 }}>아티스트 정보를 불러올 수 없습니다.</div>;
 
   return (
     <div style={{ padding: 24, background: '#181818', minHeight: '100vh' }}>
@@ -139,7 +147,7 @@ export default function CategoryCreatePage() {
             letterSpacing: -1,
           }}
         >
-          {isEdit && category ? `카테고리 수정: ${category.name}` : '카테고리 생성'}
+          {isEdit && artist ? `아티스트 수정: ${artist.name}` : '아티스트 생성'}
         </h2>
         <button
           className="btn-anim"
@@ -169,7 +177,7 @@ export default function CategoryCreatePage() {
             borderRadius: 4,
             padding: '10px 24px',
           }}
-          onClick={() => router.back()}
+          onClick={() => router.push('/posts?tab=artist')}
           disabled={loading}
         >
           취소
@@ -222,30 +230,6 @@ export default function CategoryCreatePage() {
                 border: '1px solid #1A1A1A',
               }}
             >
-              Code
-            </td>
-            <td
-              style={{
-                color: '#fff',
-                fontWeight: 500,
-                padding: 8,
-                background: '#262626',
-                border: '1px solid #1A1A1A',
-              }}
-            >
-              {code}
-            </td>
-          </tr>
-          <tr>
-            <td
-              style={{
-                color: '#5B5B5B',
-                fontWeight: 600,
-                padding: 8,
-                background: '#262626',
-                border: '1px solid #1A1A1A',
-              }}
-            >
               상태
             </td>
             <td style={{ padding: 8, background: '#262626', border: '1px solid #1A1A1A' }}>
@@ -260,8 +244,8 @@ export default function CategoryCreatePage() {
                   padding: '8px 16px',
                   width: 180,
                 }}
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
+                value={isActive ? 'active' : 'inactive'}
+                onChange={(e) => setIsActive(e.target.value === 'active')}
               >
                 <option value="active">활성화</option>
                 <option value="inactive">비활성화</option>
@@ -278,7 +262,7 @@ export default function CategoryCreatePage() {
                 border: '1px solid #1A1A1A',
               }}
             >
-              카테고리 이름
+              아티스트 이름
             </td>
             <td style={{ padding: 8, background: '#262626', border: '1px solid #1A1A1A' }}>
               <input
@@ -292,7 +276,7 @@ export default function CategoryCreatePage() {
                   padding: '8px 16px',
                   width: 240,
                 }}
-                placeholder="카테고리 명칭을 입력하세요."
+                placeholder="아티스트 명칭을 입력하세요."
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
@@ -308,7 +292,105 @@ export default function CategoryCreatePage() {
                 border: '1px solid #1A1A1A',
               }}
             >
-              카테고리 적용 수
+              설명
+            </td>
+            <td style={{ padding: 8, background: '#262626', border: '1px solid #1A1A1A' }}>
+              <textarea
+                style={{
+                  background: '#1C1C1C',
+                  color: '#545454',
+                  fontWeight: 500,
+                  fontSize: 15,
+                  border: 'none',
+                  borderRadius: 4,
+                  padding: '8px 16px',
+                  width: 240,
+                  height: 80,
+                  resize: 'vertical',
+                }}
+                placeholder="아티스트에 대한 설명을 입력하세요."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+            </td>
+          </tr>
+          <tr>
+            <td
+              style={{
+                color: '#5B5B5B',
+                fontWeight: 600,
+                padding: 8,
+                background: '#262626',
+                border: '1px solid #1A1A1A',
+              }}
+            >
+              썸네일 이미지 URL
+            </td>
+            <td style={{ padding: 8, background: '#262626', border: '1px solid #1A1A1A' }}>
+              <input
+                style={{
+                  background: '#1C1C1C',
+                  color: '#545454',
+                  fontWeight: 500,
+                  fontSize: 15,
+                  border: 'none',
+                  borderRadius: 4,
+                  padding: '8px 16px',
+                  width: 240,
+                }}
+                placeholder="썸네일 이미지 URL을 입력하세요."
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+              />
+            </td>
+          </tr>
+          <tr>
+            <td
+              style={{
+                color: '#5B5B5B',
+                fontWeight: 600,
+                padding: 8,
+                background: '#262626',
+                border: '1px solid #1A1A1A',
+              }}
+            >
+              카테고리
+            </td>
+            <td style={{ padding: 8, background: '#262626', border: '1px solid #1A1A1A' }}>
+              <select
+                style={{
+                  background: '#1C1C1C',
+                  color: '#545454',
+                  fontWeight: 500,
+                  fontSize: 15,
+                  border: 'none',
+                  borderRadius: 4,
+                  padding: '8px 16px',
+                  width: 240,
+                }}
+                value={categoryId || ''}
+                onChange={(e) => setCategoryId(e.target.value ? Number(e.target.value) : null)}
+              >
+                <option value="">카테고리를 선택하세요</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td
+              style={{
+                color: '#5B5B5B',
+                fontWeight: 600,
+                padding: 8,
+                background: '#262626',
+                border: '1px solid #1A1A1A',
+              }}
+            >
+              곡 수
             </td>
             <td
               style={{

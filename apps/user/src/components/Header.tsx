@@ -1,5 +1,3 @@
-import './SideNav.scss';
-
 interface HeaderProps {
   onMenuClick: () => void;
 }

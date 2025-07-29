@@ -2,61 +2,64 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import React from 'react';
-import { trpc } from '../../../utils/trpc';
+import { trpc } from '../../../../utils/trpc';
 
-export default function CategoryCreatePage() {
+export default function SongCreatePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isEdit = searchParams.get('edit') === '1';
   const editId = searchParams.get('id');
-  const editName = searchParams.get('name') || '';
+  const editTitle = searchParams.get('title') || '';
 
-  // 카테고리 상세 fetch (수정 모드)
+  // 노래 상세 fetch (수정 모드)
   const {
-    data: category,
-    isLoading: loadingCategory,
-    error: errorCategory,
-  } = trpc.category.get.useQuery(isEdit && editId ? { id: Number(editId) } : { id: -1 }, {
+    data: song,
+    isLoading: loadingSong,
+    error: errorSong,
+  } = trpc.song.get.useQuery(isEdit && editId ? { id: Number(editId) } : { id: -1 }, {
     enabled: isEdit && !!editId,
   });
 
-  // 리스트 전체 fetch (No, Code 계산용)
+  // 아티스트 리스트 fetch (아티스트 선택용)
+  const { data: artists = [] } = trpc.artist.list.useQuery();
+
+  // 카테고리 리스트 fetch (카테고리 선택용)
   const { data: categories = [] } = trpc.category.list.useQuery();
 
+  // 노래 리스트 fetch (No 계산용)
+  const { data: songs = [] } = trpc.song.list.useQuery();
+
   // 입력값 상태
-  const [name, setName] = React.useState(editName);
-  const [status, setStatus] = React.useState('active');
+  const [title, setTitle] = React.useState(editTitle);
+  const [description, setDescription] = React.useState('');
+  const [youtubeUrl, setYoutubeUrl] = React.useState('');
+  const [artistId, setArtistId] = React.useState<number | null>(null);
+  const [categoryId, setCategoryId] = React.useState<number | null>(null);
+  const [isActive, setIsActive] = React.useState(true);
+  const [imageUrl, setImageUrl] = React.useState('');
   const [loading, setLoading] = React.useState(false);
-  const createCategory = trpc.category.create.useMutation();
-  const updateCategory = trpc.category.update.useMutation();
+  const createSong = trpc.song.create.useMutation();
+  const updateSong = trpc.song.update.useMutation();
 
-  // 최초/마지막 생성자/일자, 곡수 등 동기화
+  // 최초/마지막 생성자/일자 등 동기화
   React.useEffect(() => {
-    if (isEdit && category) {
-      setName(category.name || '');
-      setStatus(category.status || 'active');
+    if (isEdit && song) {
+      setTitle(song.title || '');
+      setDescription(song.description || '');
+      setYoutubeUrl(song.youtubeUrl || '');
+      setArtistId(song.artistId || null);
+      setCategoryId(song.artist?.categoryId || null);
+      setIsActive(song.isActive ?? true);
+      setImageUrl(song.imageUrl || '');
     }
-  }, [isEdit, category]);
+  }, [isEdit, song]);
 
-  // No, Code, 곡수 등 계산
-  const no =
-    isEdit && category
-      ? category.order
-      : categories.length > 0
-        ? (categories[categories.length - 1].order ?? categories.length) + 1
-        : 1;
-  const code = isEdit && category ? category.code : `CT-${String(no).padStart(3, '0')}`;
-  const songCount =
-    isEdit && category
-      ? (category.artists?.reduce(
-          (sum: number, artist: any) => sum + (artist.songs?.length || 0),
-          0,
-        ) ?? '-')
-      : '-';
-  const createdAt = isEdit && category ? category.createdAt : undefined;
-  const createdBy = isEdit && category ? category.createdBy : undefined;
-  const updatedAt = isEdit && category ? category.updatedAt : undefined;
-  const updatedBy = isEdit && category ? category.updatedBy : undefined;
+  // No 계산
+  const no = isEdit && song ? song.id : songs.length > 0 ? songs.length + 1 : 1;
+  const createdAt = isEdit && song ? song.createdAt : undefined;
+  const createdBy = isEdit && song ? song.createdBy : undefined;
+  const updatedAt = isEdit && song ? song.updatedAt : undefined;
+  const updatedBy = isEdit && song ? song.updatedBy : undefined;
 
   const now = new Date();
   const nowStr = now.toLocaleString('ko-KR', {
@@ -67,51 +70,76 @@ export default function CategoryCreatePage() {
     minute: '2-digit',
   });
 
+  // 선택된 아티스트의 카테고리 자동 설정
+  React.useEffect(() => {
+    if (artistId) {
+      const selectedArtist = artists.find((artist) => artist.id === artistId);
+      if (selectedArtist) {
+        setCategoryId(selectedArtist.categoryId);
+      }
+    }
+  }, [artistId, artists]);
+
   const handleSave = async () => {
-    if (!name.trim()) return alert('카테고리 명칭을 입력하세요.');
+    if (!title.trim()) return alert('노래 제목을 입력하세요.');
+    if (!artistId) return alert('아티스트를 선택하세요.');
     setLoading(true);
     try {
-      if (isEdit && category) {
+      if (isEdit && song) {
         // 수정 모드
-        console.log('Updating category with data:', {
-          id: category.id,
-          name,
-          status,
+        console.log('Updating song with data:', {
+          id: song.id,
+          title,
+          description,
+          youtubeUrl,
+          imageUrl,
+          artistId,
           updatedBy: 'sysadmin',
-          isActive: status === 'active',
+          isActive,
         });
-        await updateCategory.mutateAsync({
-          id: category.id,
-          name,
+        await updateSong.mutateAsync({
+          id: song.id,
+          title,
+          description,
+          youtubeUrl,
+          imageUrl,
+          artistId,
           updatedBy: 'sysadmin',
-          isActive: status === 'active',
+          isActive,
         });
       } else {
         // 생성 모드
-        console.log('Creating category with data:', {
-          name,
+        console.log('Creating song with data:', {
+          title,
+          description,
+          youtubeUrl,
+          imageUrl,
+          artistId,
           createdBy: 'sysadmin',
-          isActive: status === 'active',
+          isActive,
         });
-        await createCategory.mutateAsync({
-          name,
+        await createSong.mutateAsync({
+          title,
+          description,
+          youtubeUrl,
+          imageUrl,
+          artistId,
           createdBy: 'sysadmin',
-          isActive: status === 'active',
+          isActive,
         });
       }
-      router.push('/categories');
+      router.push('/posts?tab=song');
     } catch (e) {
-      console.error('Category save error:', e);
-      alert(isEdit ? '카테고리 수정에 실패했습니다.' : '카테고리 생성에 실패했습니다.');
+      console.error('Song save error:', e);
+      alert(isEdit ? '노래 수정에 실패했습니다.' : '노래 생성에 실패했습니다.');
     } finally {
       setLoading(false);
     }
   };
 
-  if (isEdit && loadingCategory)
-    return <div style={{ color: '#fff', padding: 32 }}>로딩 중...</div>;
-  if (isEdit && errorCategory)
-    return <div style={{ color: '#fff', padding: 32 }}>카테고리 정보를 불러올 수 없습니다.</div>;
+  if (isEdit && loadingSong) return <div style={{ color: '#fff', padding: 32 }}>로딩 중...</div>;
+  if (isEdit && errorSong)
+    return <div style={{ color: '#fff', padding: 32 }}>노래 정보를 불러올 수 없습니다.</div>;
 
   return (
     <div style={{ padding: 24, background: '#181818', minHeight: '100vh' }}>
@@ -139,7 +167,7 @@ export default function CategoryCreatePage() {
             letterSpacing: -1,
           }}
         >
-          {isEdit && category ? `카테고리 수정: ${category.name}` : '카테고리 생성'}
+          {isEdit && song ? `노래 수정: ${song.title}` : '노래 생성'}
         </h2>
         <button
           className="btn-anim"
@@ -169,7 +197,7 @@ export default function CategoryCreatePage() {
             borderRadius: 4,
             padding: '10px 24px',
           }}
-          onClick={() => router.back()}
+          onClick={() => router.push('/posts?tab=song')}
           disabled={loading}
         >
           취소
@@ -222,30 +250,6 @@ export default function CategoryCreatePage() {
                 border: '1px solid #1A1A1A',
               }}
             >
-              Code
-            </td>
-            <td
-              style={{
-                color: '#fff',
-                fontWeight: 500,
-                padding: 8,
-                background: '#262626',
-                border: '1px solid #1A1A1A',
-              }}
-            >
-              {code}
-            </td>
-          </tr>
-          <tr>
-            <td
-              style={{
-                color: '#5B5B5B',
-                fontWeight: 600,
-                padding: 8,
-                background: '#262626',
-                border: '1px solid #1A1A1A',
-              }}
-            >
               상태
             </td>
             <td style={{ padding: 8, background: '#262626', border: '1px solid #1A1A1A' }}>
@@ -260,8 +264,8 @@ export default function CategoryCreatePage() {
                   padding: '8px 16px',
                   width: 180,
                 }}
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
+                value={isActive ? 'active' : 'inactive'}
+                onChange={(e) => setIsActive(e.target.value === 'active')}
               >
                 <option value="active">활성화</option>
                 <option value="inactive">비활성화</option>
@@ -278,7 +282,7 @@ export default function CategoryCreatePage() {
                 border: '1px solid #1A1A1A',
               }}
             >
-              카테고리 이름
+              노래 제목
             </td>
             <td style={{ padding: 8, background: '#262626', border: '1px solid #1A1A1A' }}>
               <input
@@ -292,9 +296,9 @@ export default function CategoryCreatePage() {
                   padding: '8px 16px',
                   width: 240,
                 }}
-                placeholder="카테고리 명칭을 입력하세요."
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                placeholder="노래 제목을 입력하세요."
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
               />
             </td>
           </tr>
@@ -308,7 +312,105 @@ export default function CategoryCreatePage() {
                 border: '1px solid #1A1A1A',
               }}
             >
-              카테고리 적용 수
+              설명
+            </td>
+            <td style={{ padding: 8, background: '#262626', border: '1px solid #1A1A1A' }}>
+              <textarea
+                style={{
+                  background: '#1C1C1C',
+                  color: '#545454',
+                  fontWeight: 500,
+                  fontSize: 15,
+                  border: 'none',
+                  borderRadius: 4,
+                  padding: '8px 16px',
+                  width: 240,
+                  height: 80,
+                  resize: 'vertical',
+                }}
+                placeholder="노래에 대한 설명을 입력하세요."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+            </td>
+          </tr>
+          <tr>
+            <td
+              style={{
+                color: '#5B5B5B',
+                fontWeight: 600,
+                padding: 8,
+                background: '#262626',
+                border: '1px solid #1A1A1A',
+              }}
+            >
+              YouTube URL
+            </td>
+            <td style={{ padding: 8, background: '#262626', border: '1px solid #1A1A1A' }}>
+              <input
+                style={{
+                  background: '#1C1C1C',
+                  color: '#545454',
+                  fontWeight: 500,
+                  fontSize: 15,
+                  border: 'none',
+                  borderRadius: 4,
+                  padding: '8px 16px',
+                  width: 240,
+                }}
+                placeholder="YouTube URL을 입력하세요."
+                value={youtubeUrl}
+                onChange={(e) => setYoutubeUrl(e.target.value)}
+              />
+            </td>
+          </tr>
+          <tr>
+            <td
+              style={{
+                color: '#5B5B5B',
+                fontWeight: 600,
+                padding: 8,
+                background: '#262626',
+                border: '1px solid #1A1A1A',
+              }}
+            >
+              아티스트
+            </td>
+            <td style={{ padding: 8, background: '#262626', border: '1px solid #1A1A1A' }}>
+              <select
+                style={{
+                  background: '#1C1C1C',
+                  color: '#545454',
+                  fontWeight: 500,
+                  fontSize: 15,
+                  border: 'none',
+                  borderRadius: 4,
+                  padding: '8px 16px',
+                  width: 240,
+                }}
+                value={artistId || ''}
+                onChange={(e) => setArtistId(e.target.value ? Number(e.target.value) : null)}
+              >
+                <option value="">아티스트를 선택하세요</option>
+                {artists.map((artist) => (
+                  <option key={artist.id} value={artist.id}>
+                    {artist.name}
+                  </option>
+                ))}
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td
+              style={{
+                color: '#5B5B5B',
+                fontWeight: 600,
+                padding: 8,
+                background: '#262626',
+                border: '1px solid #1A1A1A',
+              }}
+            >
+              카테고리
             </td>
             <td
               style={{
@@ -319,7 +421,37 @@ export default function CategoryCreatePage() {
                 border: '1px solid #1A1A1A',
               }}
             >
-              {songCount}
+              {categoryId ? categories.find((cat) => cat.id === categoryId)?.name || '-' : '-'}
+            </td>
+          </tr>
+          <tr>
+            <td
+              style={{
+                color: '#5B5B5B',
+                fontWeight: 600,
+                padding: 8,
+                background: '#262626',
+                border: '1px solid #1A1A1A',
+              }}
+            >
+              썸네일 이미지 URL
+            </td>
+            <td style={{ padding: 8, background: '#262626', border: '1px solid #1A1A1A' }}>
+              <input
+                style={{
+                  background: '#1C1C1C',
+                  color: '#545454',
+                  fontWeight: 500,
+                  fontSize: 15,
+                  border: 'none',
+                  borderRadius: 4,
+                  padding: '8px 16px',
+                  width: 240,
+                }}
+                placeholder="썸네일 이미지 URL을 입력하세요."
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+              />
             </td>
           </tr>
           <tr>

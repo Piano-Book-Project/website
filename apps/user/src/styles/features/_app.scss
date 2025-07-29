@@ -1,0 +1,24 @@
+.app {
+  min-height: 100vh;
+  background: #171719;
+  display: flex;
+  flex-direction: column;
+}
+
+.app__content {
+  margin-left: 240px;
+  padding: 0;
+  flex: 1;
+  min-height: calc(100vh - 80px); // PlayerBar 높이 제외
+}
+
+.app__content--mobile {
+  margin-left: 0;
+}
+
+// 반응형
+@media (max-width: 767px) {
+  .app__content {
+    margin-left: 0;
+  }
+}

@@ -1,4 +1,5 @@
-@use '../features/player/styles/player-bar.scss';
+@use './features/_player.scss';
+@use './features/_app.scss';
 
 html,
 body {

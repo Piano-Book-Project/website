@@ -17,8 +17,14 @@ export const artistRouter = router({
     )
     .mutation(async ({ input }) => {
       try {
-        return await prisma.artist.create({ data: { ...input, updatedBy: input.createdBy } });
+        console.log('Artist create input:', input);
+        const result = await prisma.artist.create({
+          data: { ...input, updatedBy: input.createdBy },
+        });
+        console.log('Artist created successfully:', result);
+        return result;
       } catch (e) {
+        console.error('Artist creation error:', e);
         throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: (e as Error).message });
       }
     }),

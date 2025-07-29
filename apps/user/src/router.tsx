@@ -11,8 +11,6 @@ export default function Router() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<App />}>
-          {' '}
-          {/* App에서 SideNav, PlayerBar 등 공통 UI */}
           <Route index element={<Home />} />
           <Route path="about" element={<AboutUs />} />
           <Route path="piano-books" element={<PianoBooks />} />

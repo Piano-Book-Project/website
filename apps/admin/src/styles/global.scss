@@ -1,9 +1,9 @@
-// Global SCSS for admin app
-// Add base, layout, and utility styles here as you migrate from Tailwind
+@use './features/_index.scss';
 
+// Global styles
 html,
 body {
-  background: #171719 !important;
+  background: #171719;
   margin: 0px;
-  padding: 0 !important;
+  padding: 0px;
 }

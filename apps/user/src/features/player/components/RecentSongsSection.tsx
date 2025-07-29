@@ -1,10 +1,9 @@
 import { createTRPCReact } from '@trpc/react-query';
-import React from 'react';
 import { FaPlay } from 'react-icons/fa';
 import type { AppRouter } from 'schema/src/trpc';
 import { usePlayerStore } from '../stores/playerStore';
+import type { Song } from '../types';
 import { getYoutubeThumbnail } from '../utils';
-import './RecentSongsSection.scss';
 
 const trpc = createTRPCReact<AppRouter>();
 
@@ -17,14 +16,34 @@ export default function RecentSongsSection() {
   // const recentSongs = useMemo(() => {
   //   if (!songs) return [];
   //   return songs
-  //     .filter((s: any) => isRecent(s.createdAt))
-  //     .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  //     .filter((s: Song) => isRecent(s.createdAt))
+  //     .sort((a: Song, b: Song) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   // }, [songs]);
-  const recentSongs = [
+  const recentSongs: Song[] = [
     {
       id: 1,
       title: '더미 곡1',
-      artist: { id: 1, name: '더미 아티스트1' },
+      artist: {
+        id: 1,
+        name: '더미 아티스트1',
+        category: {
+          id: 1,
+          code: 'CT-001',
+          status: 'active',
+          name: 'K-POP',
+          order: 1,
+          createdAt: '',
+          createdBy: '',
+          updatedAt: '',
+          updatedBy: '',
+          isActive: true,
+        },
+        createdAt: '',
+        createdBy: '',
+        updatedAt: '',
+        updatedBy: '',
+        isActive: true,
+      },
       createdAt: new Date().toISOString(),
       createdBy: 'dummy',
       updatedAt: new Date().toISOString(),
@@ -41,7 +60,27 @@ export default function RecentSongsSection() {
     {
       id: 2,
       title: '더미 곡2',
-      artist: { id: 2, name: '더미 아티스트2' },
+      artist: {
+        id: 2,
+        name: '더미 아티스트2',
+        category: {
+          id: 1,
+          code: 'CT-001',
+          status: 'active',
+          name: 'K-POP',
+          order: 1,
+          createdAt: '',
+          createdBy: '',
+          updatedAt: '',
+          updatedBy: '',
+          isActive: true,
+        },
+        createdAt: '',
+        createdBy: '',
+        updatedAt: '',
+        updatedBy: '',
+        isActive: true,
+      },
       createdAt: new Date().toISOString(),
       createdBy: 'dummy',
       updatedAt: new Date().toISOString(),
@@ -57,7 +96,7 @@ export default function RecentSongsSection() {
     },
   ];
 
-  const handlePlay = async (song: any) => {
+  const handlePlay = async (song: Song) => {
     await playlistCreate.mutateAsync({
       userId: 1,
       artistId: song.artist.id,
@@ -71,7 +110,7 @@ export default function RecentSongsSection() {
     <section className="recent-songs-section">
       <h2 className="recent-songs__title">신규 등록곡</h2>
       <div className="recent-songs__list">
-        {recentSongs.map((song: any) => (
+        {recentSongs.map((song: Song) => (
           <div className="recent-song-card" key={song.id}>
             <div className="recent-song-card__thumb-wrap">
               <img

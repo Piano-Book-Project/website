@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Nulltry from '../../assets/Nulltry.png';
 import { trpc } from '../../utils/trpc';
 
@@ -179,6 +179,9 @@ function CategoryEditModal({ category, onClose }: { category: Category; onClose:
 }
 
 export default function CategoriesPage() {
+  // 메타태그 설정
+  // useEffect 및 setPageMeta, setDefaultMeta 관련 코드 모두 삭제
+
   const [filterOpen, setFilterOpen] = useState(false);
   const [filterActive, setFilterActive] = useState(false);
   const [filters, setFilters] = useState({ order: '', status: '', creator: '' });
@@ -255,12 +258,24 @@ export default function CategoriesPage() {
   const pagedCategories = categories.slice((page - 1) * pageSize, page * pageSize);
   const totalPages = Math.ceil(categories.length / pageSize);
 
-  // orderList를 DB categories로 동기화
+  // orderList를 DB categories로 동기화 - useRef로 안전하게 처리
+  const prevCategoriesRef = useRef(categories);
+
   useEffect(() => {
-    if (categories && categories.length > 0) {
-      setOrderList([...categories].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)));
-    } else {
-      setOrderList([]);
+    // 이전 categories와 현재 categories가 실제로 다른지 확인
+    const prevCategories = prevCategoriesRef.current;
+    const hasChanged =
+      prevCategories !== categories ||
+      (categories && prevCategories && categories.length !== prevCategories.length);
+
+    if (hasChanged) {
+      if (categories && categories.length > 0) {
+        const sorted = [...categories].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+        setOrderList(sorted);
+      } else {
+        setOrderList([]);
+      }
+      prevCategoriesRef.current = categories;
     }
   }, [categories]);
 

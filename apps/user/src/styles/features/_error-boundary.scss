@@ -1,0 +1,67 @@
+.error-boundary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #1f1f22;
+  color: #fff;
+  padding: 24px;
+}
+
+.error-boundary__content {
+  max-width: 500px;
+  text-align: center;
+  padding: 48px 24px;
+  background: #2a2a2d;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.error-boundary__title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 16px;
+  color: #fff;
+}
+
+.error-boundary__message {
+  font-size: 16px;
+  color: #bcbcbc;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.error-boundary__button {
+  background: #ef2f62;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.error-boundary__button:hover {
+  background: #d81b60;
+}
+
+// 반응형
+@media (max-width: 768px) {
+  .error-boundary {
+    padding: 16px;
+  }
+
+  .error-boundary__content {
+    padding: 32px 16px;
+  }
+
+  .error-boundary__title {
+    font-size: 20px;
+  }
+
+  .error-boundary__message {
+    font-size: 14px;
+  }
+}

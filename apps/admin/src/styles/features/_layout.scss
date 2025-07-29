@@ -1,0 +1,30 @@
+// ClientLayout 스타일
+.client-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.client-layout__main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.client-layout__content {
+  flex: 1;
+}
+
+// 로그인 페이지에서 사이드바/헤더 숨김
+.client-layout--login {
+  .sidebar,
+  .header {
+    display: none;
+  }
+}
+
+// 반응형 디자인
+@media (max-width: 768px) {
+  .client-layout {
+    flex-direction: column;
+  }
+}

@@ -1,0 +1,32 @@
+.like-button {
+  background: none;
+  border: none;
+  color: #fcfcfc;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.like-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.05);
+}
+
+.like-button--active {
+  transform: scale(1.2);
+}
+
+.like-button__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.like-button__icon svg {
+  width: 24px;
+  height: 24px;
+}

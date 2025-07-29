@@ -1,13 +1,6 @@
 'use client';
 import React, { useState, useRef } from 'react';
 
-// Heroicons ChevronDown SVG
-// const ChevronDownIcon = (
-//   <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-//     <path stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/>
-//   </svg>
-// );
-
 const LOGO_URL =
   'https://ssl.pstatic.net/static/nng/glive/resource/p/static/media/logo_light.530b4d8f04d5671f2465.gif';
 
@@ -56,121 +49,30 @@ export default function AdminLogin() {
   };
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        background: '#171719',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <div
-        style={{
-          width: 861,
-          height: 332,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: '#23232b',
-          borderRadius: 16,
-          boxShadow: '0 4px 24px rgba(0,0,0,0.18)',
-          position: 'relative',
-        }}
-      >
-        <form
-          onSubmit={handleNext}
-          style={{
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            flexDirection: 'row',
-            gap: 0,
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'transparent',
-            boxShadow: 'none',
-            borderRadius: 0,
-            padding: 0,
-            position: 'static',
-          }}
-        >
+    <div className="login-page">
+      <div className="login-container">
+        <form onSubmit={handleNext} className="login-form">
           {/* 왼쪽: 로그인 그룹 */}
-          <div
-            style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'flex-start',
-              paddingLeft: 24,
-            }}
-          >
+          <div className="login-left">
             {/* 로고 */}
-            <div style={{ marginBottom: 0 }}>
-              <img src={LOGO_URL} alt="로고" style={{ width: 100, display: 'block' }} />
+            <div className="login-left__logo">
+              <img src={LOGO_URL} alt="로고" />
             </div>
             {/* 로그인 flex row */}
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 18,
-                marginBottom: 0,
-                padding: 18,
-              }}
-            >
-              <div style={{ fontWeight: 700, fontSize: 22, color: '#fff', padding: 0, margin: 0 }}>
-                로그인
-              </div>
+            <div className="login-left__title">
+              <h1>로그인</h1>
             </div>
             {/* 설명 */}
-            <div
-              style={{ color: '#bbb', fontSize: 15, lineHeight: 1.6, marginBottom: 0, padding: 18 }}
-            >
+            <div className="login-left__description">
               어드민 계정으로 로그인합니다.
               <br />이 계정은 관리자 전용이며, 권한이 부여된 사용자만 접근할 수 있습니다.
             </div>
           </div>
           {/* 오른쪽: 입력+버튼 */}
-          <div
-            style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              paddingLeft: 32,
-              paddingRight: 24,
-              minWidth: 260,
-              position: 'relative',
-            }}
-          >
-            <div
-              style={{
-                width: '100%',
-                maxWidth: 260,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                position: 'relative',
-                minHeight: 260,
-                paddingBottom: 48,
-                justifyContent: 'center',
-              }}
-            >
-              {/* 아이디 인풋 + 비밀번호 + 아이디를 잊으셨나요 그룹 */}
-              <div
-                style={{
-                  width: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  paddingLeft: 24,
-                  paddingRight: 24,
-                  rowGap: 8,
-                }}
-              >
+          <div className="login-right">
+            <div className="login-right__content">
+              {/* 아이디 인풋 + 비밀번호 + 버튼 그룹 */}
+              <div className="login-right__input-group">
                 <input
                   type="text"
                   placeholder="아이디"
@@ -178,25 +80,15 @@ export default function AdminLogin() {
                   onChange={(e) => {
                     setId(e.target.value);
                     setError('');
-                    if (e.target.value.length >= 1) setStep('pw');
-                    else setStep('id');
+                    // 아이디에 문자가 입력되면 바로 비밀번호 필드 표시
+                    if (e.target.value.length > 0) {
+                      setStep('pw');
+                    } else {
+                      setStep('id');
+                    }
                   }}
-                  disabled={step === 'pw' && loading}
-                  style={{
-                    width: 324,
-                    padding: '1.1em 1em',
-                    borderRadius: 8,
-                    border: '1px solid #8E918F',
-                    background: '#19191f',
-                    color: '#fff',
-                    fontSize: 16,
-                    outline: 'none',
-                    marginBottom: 0, // margin 0으로 변경
-                    fontWeight: 500,
-                    letterSpacing: 0.5,
-                    boxSizing: 'border-box',
-                    textAlign: 'left',
-                  }}
+                  disabled={loading}
+                  className="login-right__input"
                 />
                 <input
                   ref={pwInputRef}
@@ -207,72 +99,23 @@ export default function AdminLogin() {
                     setPw(e.target.value);
                     setError('');
                   }}
-                  style={{
-                    width: 324,
-                    padding: '1.1em 1em',
-                    borderRadius: 8,
-                    border: '1px solid #8E918F',
-                    background: '#19191f',
-                    color: '#fff',
-                    fontSize: 16,
-                    outline: 'none',
-                    marginBottom: 0, // margin 0으로 변경
-                    fontWeight: 500,
-                    letterSpacing: 0.5,
-                    boxSizing: 'border-box',
-                    textAlign: 'left',
-                    display: id.length >= 1 ? 'block' : 'none',
-                  }}
+                  className={`login-right__input login-right__password-input ${
+                    id.length >= 1 ? 'visible' : ''
+                  }`}
                 />
+                {/* 다음 버튼 */}
+                <div className="login-right__button-container">
+                  <button
+                    type="submit"
+                    disabled={loading || !id || !pw}
+                    className="login-right__submit-button"
+                  >
+                    {loading ? '확인 중...' : '다음'}
+                  </button>
+                </div>
               </div>
               {/* 에러 메시지 */}
-              {error && (
-                <div
-                  style={{
-                    color: '#ff5a5a',
-                    fontSize: 14,
-                    marginTop: 4,
-                    marginBottom: 4,
-                    display: 'flex',
-                    justifyContent: 'flex-start',
-                    alignItems: 'flex-start',
-                    width: 324,
-                  }}
-                >
-                  {error}
-                </div>
-              )}
-              {/* 다음 버튼 */}
-              <div
-                style={{
-                  width: 324,
-                  display: 'flex',
-                  justifyContent: 'flex-end',
-                  margin: '24 auto',
-                  marginTop: 8,
-                }}
-              >
-                <button
-                  type="submit"
-                  disabled={loading || id.length < 3 || (id.length >= 3 && !pw)}
-                  style={{
-                    minWidth: 80,
-                    padding: '0.8em 2.2em',
-                    borderRadius: 8,
-                    background: '#7da2ff',
-                    color: '#fff',
-                    fontWeight: 600,
-                    fontSize: 16,
-                    border: 'none',
-                    cursor: loading ? 'not-allowed' : 'pointer',
-                    transition: 'background 0.2s',
-                    opacity: loading || id.length < 3 || (id.length >= 3 && !pw) ? 0.6 : 1,
-                    margin: 0, // Remove extra padding/margin from button wrapper
-                  }}
-                >
-                  {loading ? '확인 중...' : '다음'}
-                </button>
-              </div>
+              {error && <div className="login-right__error">{error}</div>}
             </div>
           </div>
         </form>
