@@ -56,12 +56,12 @@ export default function MainVisualCreatePage() {
       setCategoryId(mainVisual.categoryId || null);
       setArtistId(mainVisual.artistId || null);
       setSongId(mainVisual.songId || null);
-      setDisplayType(mainVisual.displayType || 'image');
+      setDisplayType((mainVisual.displayType as 'image' | 'youtube' | 'streaming') || 'image');
       setImageUrl(mainVisual.imageUrl || '');
       setYoutubeUrl(mainVisual.youtubeUrl || '');
       setStreamingUrl(mainVisual.streamingUrl || '');
       setIsActive(mainVisual.isActive ?? true);
-      setLiveStatus(mainVisual.liveStatus || 'offline');
+      setLiveStatus((mainVisual.liveStatus as 'online' | 'offline') || 'offline');
     }
   }, [isEdit, mainVisual]);
 

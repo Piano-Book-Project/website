@@ -138,7 +138,7 @@ export default function MainVisualPage() {
 
   const openModal = () => {
     setOrderModal(true);
-    setOrderList([...mainVisuals]);
+    setOrderList([...(mainVisuals as MainVisual[])]);
     setTimeout(() => setModalVisible(true), 10);
   };
 

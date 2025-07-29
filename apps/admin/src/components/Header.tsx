@@ -35,7 +35,7 @@ export default function Header() {
     return () => clearInterval(timer);
   }, []);
 
-  const pageName = getPageName(pathname);
+  const pageName = getPageName(pathname ?? '');
 
   return (
     <header

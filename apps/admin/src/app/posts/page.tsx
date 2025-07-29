@@ -302,7 +302,7 @@ export default function PostsPage() {
 
       // 카테고리 필터링 (아티스트의 카테고리)
       const categoryMatch =
-        !filters.categoryId || song.artist.categoryId.toString() === filters.categoryId;
+        !filters.categoryId || song.artist.category.id.toString() === filters.categoryId;
 
       // 상태 필터링
       const statusMatch =

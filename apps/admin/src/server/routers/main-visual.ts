@@ -16,7 +16,7 @@ export const mainVisualRouter = router({
         },
       });
 
-      return mainVisuals.map((mv) => ({
+      return mainVisuals.map((mv: any) => ({
         id: mv.id,
         code: mv.code,
         category: mv.category.name,
