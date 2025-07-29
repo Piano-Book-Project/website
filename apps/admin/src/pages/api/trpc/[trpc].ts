@@ -4,7 +4,11 @@ import prisma from '../../../server/prisma';
 import { appRouter } from '../../../server/routers';
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5174');
+  const allowedOrigin =
+    process.env.NODE_ENV === 'production'
+      ? 'https://chu-piano-books.vercel.app'
+      : 'http://localhost:5174';
+  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
