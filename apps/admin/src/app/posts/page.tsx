@@ -266,7 +266,7 @@ export default function PostsPage() {
 
   // 검색 및 필터링된 데이터
   const filteredArtists = React.useMemo(() => {
-    return artists.filter((artist) => {
+    return artists.filter((artist: Artist) => {
       // 검색어 필터링 (유사어 처리)
       const searchMatch =
         !searchTerm ||
@@ -292,7 +292,7 @@ export default function PostsPage() {
   }, [artists, searchTerm, filters]);
 
   const filteredSongs = React.useMemo(() => {
-    return songs.filter((song) => {
+    return songs.filter((song: Song) => {
       // 검색어 필터링 (유사어 처리)
       const searchMatch =
         !searchTerm ||
@@ -502,7 +502,7 @@ export default function PostsPage() {
                           </td>
                         </tr>
                       ) : (
-                        orderList.map((item, idx) => (
+                        orderList.map((item: any, idx: number) => (
                           <tr
                             key={idx}
                             className={

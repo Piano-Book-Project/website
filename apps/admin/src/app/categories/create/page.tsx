@@ -15,9 +15,9 @@ export default function CategoryCreatePageWrapper() {
 function CategoryCreatePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const isEdit = searchParams.get('edit') === '1';
-  const editId = searchParams.get('id');
-  const editName = searchParams.get('name') || '';
+  const isEdit = searchParams?.get('edit') === '1';
+  const editId = searchParams?.get('id');
+  const editName = searchParams?.get('name') || '';
 
   const {
     data: category,
@@ -51,8 +51,10 @@ function CategoryCreatePage() {
   const code = isEdit && category ? category.code : `CT-${String(no).padStart(3, '0')}`;
   const songCount =
     isEdit && category
-      ? (category.artists?.reduce((sum, artist) => sum + ((artist as any).songs?.length || 0), 0) ??
-        '-')
+      ? (category.artists?.reduce(
+          (sum: any, artist: any) => sum + ((artist as any).songs?.length || 0),
+          0,
+        ) ?? '-')
       : '-';
   const createdAt = isEdit && category ? category.createdAt : undefined;
   const createdBy = isEdit && category ? category.createdBy : undefined;

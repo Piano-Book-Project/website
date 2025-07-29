@@ -7,9 +7,9 @@ import { trpc } from '../../../../utils/trpc';
 export default function ArtistCreatePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const isEdit = searchParams.get('edit') === '1';
-  const editId = searchParams.get('id');
-  const editName = searchParams.get('name') || '';
+  const isEdit = searchParams?.get('edit') === '1';
+  const editId = searchParams?.get('id');
+  const editName = searchParams?.get('name') || '';
 
   // 아티스트 상세 fetch (수정 모드)
   const {

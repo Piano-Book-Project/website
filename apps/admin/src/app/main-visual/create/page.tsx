@@ -7,8 +7,8 @@ import { trpc } from '../../../utils/trpc';
 export default function MainVisualCreatePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const isEdit = searchParams.get('edit') === '1';
-  const editId = searchParams.get('id');
+  const isEdit = searchParams?.get('edit') === '1';
+  const editId = searchParams?.get('id');
 
   // 메인 비주얼 상세 fetch (수정 모드)
   const { data: mainVisual } = trpc.mainVisual.get.useQuery(

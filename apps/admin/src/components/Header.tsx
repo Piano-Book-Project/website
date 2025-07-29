@@ -15,7 +15,7 @@ const pageNameMap: Record<string, string> = {
 };
 
 function getPageName(path: string) {
-  return pageNameMap[path] || '';
+  return pageNameMap[path] ?? '';
 }
 
 export default function Header() {

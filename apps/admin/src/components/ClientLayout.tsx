@@ -6,7 +6,7 @@ import Sidebar from './Sidebar';
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isLogin = pathname.startsWith('/login');
+  const isLogin = (pathname ?? '').startsWith('/login');
 
   return (
     <div className={`client-layout${isLogin ? ' client-layout--login' : ''}`}>
