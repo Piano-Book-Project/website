@@ -1,6 +1,6 @@
 'use client';
-import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function Home() {
   const router = useRouter();
@@ -12,3 +12,4 @@ export default function Home() {
 
   return null; // 리다이렉션 중에는 아무것도 렌더링하지 않음
 }
+// Test comment
