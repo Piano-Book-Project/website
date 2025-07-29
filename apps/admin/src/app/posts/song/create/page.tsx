@@ -7,9 +7,9 @@ import { trpc } from '../../../../utils/trpc';
 export default function SongCreatePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const isEdit = searchParams.get('edit') === '1';
-  const editId = searchParams.get('id');
-  const editTitle = searchParams.get('title') || '';
+  const isEdit = searchParams?.get('edit') === '1';
+  const editId = searchParams?.get('id');
+  const editTitle = searchParams?.get('title') || '';
 
   // 노래 상세 fetch (수정 모드)
   const {

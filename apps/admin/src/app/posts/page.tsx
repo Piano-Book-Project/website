@@ -762,7 +762,7 @@ export default function PostsPage() {
                     onChange={(e) => setFilters((f) => ({ ...f, categoryId: e.target.value }))}
                   >
                     <option value="">카테고리</option>
-                    {categories.map((category) => (
+                    {categories.map((category: Category) => (
                       <option key={category.id} value={category.id.toString()}>
                         {category.name}
                       </option>

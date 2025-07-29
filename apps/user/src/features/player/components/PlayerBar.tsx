@@ -17,7 +17,7 @@ import {
 import YouTube from 'react-youtube';
 import type { AppRouter } from 'schema/src/trpc';
 import { usePlayerStore } from '../stores/playerStore';
-import type { PlaylistItem, YouTubeEvent, YouTubePlayer } from '../types';
+import type { PlaylistItem } from '../types';
 import { CoverImage } from './CoverImage';
 
 const trpc = createTRPCReact<AppRouter>();
@@ -91,7 +91,7 @@ export default function PlayerBar() {
   const [isShuffling, setIsShuffling] = useState(false);
   const [isRepeating, setIsRepeating] = useState(false);
   const [liked, setLiked] = useState(false);
-  const playerRef = useRef<YouTubePlayer | null>(null);
+  const playerRef = useRef<any | null>(null);
   const volumeBarRef = useRef<HTMLDivElement>(null);
   const volumeBtnRef = useRef<HTMLButtonElement>(null);
   const [volumeModalPos, setVolumeModalPos] = useState<{ top: number; left: number }>({
@@ -111,11 +111,11 @@ export default function PlayerBar() {
   const duration = 0; // 실제로는 유튜브 API에서 가져와야 함
 
   // 유튜브 플레이어 이벤트 핸들러
-  const onReady = (e: YouTubeEvent) => {
+  const onReady = (e: any) => {
     playerRef.current = e.target;
   };
 
-  const onStateChange = (e: YouTubeEvent) => {
+  const onStateChange = (e: any) => {
     if (!playerRef.current) return;
     const playerState = e.data;
     if (playerState === 1) {
