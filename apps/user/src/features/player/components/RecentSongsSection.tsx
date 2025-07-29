@@ -1,16 +1,10 @@
-import { createTRPCReact } from '@trpc/react-query';
 import { FaPlay } from 'react-icons/fa';
-import type { AppRouter } from 'schema/src/trpc';
 import { usePlayerStore } from '../stores/playerStore';
 import type { Song } from '../types';
 import { getYoutubeThumbnail } from '../utils';
 
-const trpc = createTRPCReact<AppRouter>();
-
 export default function RecentSongsSection() {
-  // const { data: songs } = trpc.song.list.useQuery();
-  const playlistCreate = trpc.playlist.create.useMutation();
-  const { setCurrentSong } = usePlayerStore();
+  const { addSong } = usePlayerStore();
 
   // 최근 2주 내 곡만 필터링 (최신순)
   // const recentSongs = useMemo(() => {
@@ -23,15 +17,20 @@ export default function RecentSongsSection() {
     {
       id: 1,
       title: '더미 곡1',
+      description: null,
+      artistId: 1,
       artist: {
         id: 1,
         name: '더미 아티스트1',
+        description: null,
+        imageUrl: null,
+        categoryId: 1,
         category: {
           id: 1,
-          code: 'CT-001',
-          status: 'active',
           name: 'K-POP',
+          description: null,
           order: 1,
+          code: 'CT-001',
           createdAt: '',
           createdBy: '',
           updatedAt: '',
@@ -53,22 +52,27 @@ export default function RecentSongsSection() {
       tags: [],
       hasImage: false,
       hasAttachment: false,
-      pdfUrl: '',
-      imageUrl: '',
-      youtubeUrl: '',
+      pdfUrl: null,
+      imageUrl: null,
+      youtubeUrl: null,
     },
     {
       id: 2,
       title: '더미 곡2',
+      description: null,
+      artistId: 2,
       artist: {
         id: 2,
         name: '더미 아티스트2',
+        description: null,
+        imageUrl: null,
+        categoryId: 1,
         category: {
           id: 1,
-          code: 'CT-001',
-          status: 'active',
           name: 'K-POP',
+          description: null,
           order: 1,
+          code: 'CT-001',
           createdAt: '',
           createdBy: '',
           updatedAt: '',
@@ -90,20 +94,36 @@ export default function RecentSongsSection() {
       tags: [],
       hasImage: false,
       hasAttachment: false,
-      pdfUrl: '',
-      imageUrl: '',
-      youtubeUrl: '',
+      pdfUrl: null,
+      imageUrl: null,
+      youtubeUrl: null,
     },
   ];
 
   const handlePlay = async (song: Song) => {
-    await playlistCreate.mutateAsync({
-      userId: 1,
-      artistId: song.artist.id,
-      songId: song.id,
-      createdBy: 'dummy',
-    });
-    setCurrentSong(song);
+    try {
+      // 플레이리스트에 곡 등록
+      const response = await fetch('http://localhost:3001/api/playlist/user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: 1,
+          artistId: song.artist.id,
+          songId: song.id,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // 플레이어 상태 업데이트
+        addSong(song);
+      }
+    } catch (error) {
+      // 에러 처리
+    }
   };
 
   return (
@@ -113,11 +133,13 @@ export default function RecentSongsSection() {
         {recentSongs.map((song: Song) => (
           <div className="recent-song-card" key={song.id}>
             <div className="recent-song-card__thumb-wrap">
-              <img
-                src={getYoutubeThumbnail(song.youtubeUrl) || song.imageUrl}
-                alt={song.title}
-                className="recent-song-card__thumb"
-              />
+              {(getYoutubeThumbnail(song.youtubeUrl || undefined) || song.imageUrl) && (
+                <img
+                  src={getYoutubeThumbnail(song.youtubeUrl || undefined) || song.imageUrl || ''}
+                  alt={song.title}
+                  className="recent-song-card__thumb"
+                />
+              )}
               <button className="recent-song-card__play-btn" onClick={() => handlePlay(song)}>
                 <FaPlay />
               </button>

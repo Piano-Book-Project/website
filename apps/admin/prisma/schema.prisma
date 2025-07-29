@@ -61,54 +61,57 @@ model Playlist {
 }
 
 model Category {
-  id        Int      @id @default(autoincrement())
-  code      String   @unique
-  status    String   @default("active")
-  name      String   @unique
-  order     Int      @default(0)
-  artists   Artist[]
-  createdAt DateTime @default(now())
-  createdBy String
-  updatedAt DateTime @updatedAt
-  updatedBy String
-  isActive  Boolean  @default(true)
+  id          Int          @id @default(autoincrement())
+  code        String       @unique
+  status      String       @default("active")
+  name        String       @unique
+  order       Int          @default(0)
+  artists     Artist[]
+  mainVisuals MainVisual[]
+  createdAt   DateTime     @default(now())
+  createdBy   String
+  updatedAt   DateTime     @updatedAt
+  updatedBy   String
+  isActive    Boolean      @default(true)
 }
 
 model Artist {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
+  id          Int          @id @default(autoincrement())
+  name        String       @unique
   description String?
   imageUrl    String?
-  category    Category @relation(fields: [categoryId], references: [id])
+  category    Category     @relation(fields: [categoryId], references: [id])
   categoryId  Int
   songs       Song[]
-  playlists   Playlist[] @relation("ArtistPlaylists")
-  createdAt   DateTime @default(now())
+  mainVisuals MainVisual[]
+  playlists   Playlist[]   @relation("ArtistPlaylists")
+  createdAt   DateTime     @default(now())
   createdBy   String
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime     @updatedAt
   updatedBy   String
-  isActive    Boolean  @default(true)
+  isActive    Boolean      @default(true)
 }
 
 model Song {
-  id            Int      @id @default(autoincrement())
+  id            Int          @id @default(autoincrement())
   title         String
   description   String?
   imageUrl      String?
   youtubeUrl    String?
-  hasImage      Boolean  @default(false)
-  hasAttachment Boolean  @default(false)
+  hasImage      Boolean      @default(false)
+  hasAttachment Boolean      @default(false)
   pdfUrl        String?
-  artist        Artist   @relation(fields: [artistId], references: [id])
+  artist        Artist       @relation(fields: [artistId], references: [id])
   artistId      Int
-  playlists     Playlist[] @relation("SongPlaylists")
-  createdAt     DateTime @default(now())
+  mainVisuals   MainVisual[]
+  playlists     Playlist[]   @relation("SongPlaylists")
+  createdAt     DateTime     @default(now())
   createdBy     String
-  updatedAt     DateTime @updatedAt
+  updatedAt     DateTime     @updatedAt
   updatedBy     String
-  isActive      Boolean  @default(true)
+  isActive      Boolean      @default(true)
   isFeaturedMainVisual Boolean @default(false)
-  tags          Tag[]    @relation("SongTags")
+  tags          Tag[]        @relation("SongTags")
 }
 
 model Tag {
@@ -120,4 +123,27 @@ model Tag {
   updatedAt DateTime @updatedAt
   updatedBy String
   isActive  Boolean  @default(true)
+}
+
+model MainVisual {
+  id           Int      @id @default(autoincrement())
+  code         String   @unique
+  category     Category @relation(fields: [categoryId], references: [id])
+  categoryId   Int
+  artist       Artist?  @relation(fields: [artistId], references: [id])
+  artistId     Int?
+  song         Song?    @relation(fields: [songId], references: [id])
+  songId       Int?
+  displayType  String   // 'image', 'youtube', 'streaming'
+  imageUrl     String?
+  youtubeUrl   String?
+  streamingUrl String?
+  isLive       Boolean  @default(false)
+  liveStatus   String   @default("offline") // 'online', 'offline'
+  order        Int      @default(0)
+  createdAt    DateTime @default(now())
+  createdBy    String
+  updatedAt    DateTime @updatedAt
+  updatedBy    String
+  isActive     Boolean  @default(true)
 } 

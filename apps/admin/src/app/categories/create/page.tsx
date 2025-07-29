@@ -1,17 +1,24 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import React from 'react';
+import React, { Suspense } from 'react';
 import { trpc } from '../../../utils/trpc';
 
-export default function CategoryCreatePage() {
+export default function CategoryCreatePageWrapper() {
+  return (
+    <Suspense fallback={<div style={{ color: '#fff', padding: 32 }}>로딩 중...</div>}>
+      <CategoryCreatePage />
+    </Suspense>
+  );
+}
+
+function CategoryCreatePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isEdit = searchParams.get('edit') === '1';
   const editId = searchParams.get('id');
   const editName = searchParams.get('name') || '';
 
-  // 카테고리 상세 fetch (수정 모드)
   const {
     data: category,
     isLoading: loadingCategory,
@@ -20,17 +27,14 @@ export default function CategoryCreatePage() {
     enabled: isEdit && !!editId,
   });
 
-  // 리스트 전체 fetch (No, Code 계산용)
   const { data: categories = [] } = trpc.category.list.useQuery();
 
-  // 입력값 상태
   const [name, setName] = React.useState(editName);
   const [status, setStatus] = React.useState('active');
   const [loading, setLoading] = React.useState(false);
   const createCategory = trpc.category.create.useMutation();
   const updateCategory = trpc.category.update.useMutation();
 
-  // 최초/마지막 생성자/일자, 곡수 등 동기화
   React.useEffect(() => {
     if (isEdit && category) {
       setName(category.name || '');
@@ -38,7 +42,6 @@ export default function CategoryCreatePage() {
     }
   }, [isEdit, category]);
 
-  // No, Code, 곡수 등 계산
   const no =
     isEdit && category
       ? category.order
@@ -48,10 +51,8 @@ export default function CategoryCreatePage() {
   const code = isEdit && category ? category.code : `CT-${String(no).padStart(3, '0')}`;
   const songCount =
     isEdit && category
-      ? (category.artists?.reduce(
-          (sum: number, artist: any) => sum + (artist.songs?.length || 0),
-          0,
-        ) ?? '-')
+      ? (category.artists?.reduce((sum, artist) => sum + ((artist as any).songs?.length || 0), 0) ??
+        '-')
       : '-';
   const createdAt = isEdit && category ? category.createdAt : undefined;
   const createdBy = isEdit && category ? category.createdBy : undefined;
@@ -72,7 +73,6 @@ export default function CategoryCreatePage() {
     setLoading(true);
     try {
       if (isEdit && category) {
-        // 수정 모드
         console.log('Updating category with data:', {
           id: category.id,
           name,
@@ -87,7 +87,6 @@ export default function CategoryCreatePage() {
           isActive: status === 'active',
         });
       } else {
-        // 생성 모드
         console.log('Creating category with data:', {
           name,
           createdBy: 'sysadmin',

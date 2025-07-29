@@ -50,6 +50,24 @@ export default function AdminLogin() {
 
   return (
     <div className="login-page">
+      <style>{`
+        .btn-anim {
+          transition:
+            background 0.18s,
+            color 0.18s,
+            opacity 0.18s,
+            transform 0.18s;
+        }
+        .btn-anim:hover,
+        .btn-anim:focus {
+          opacity: 0.85;
+          transform: scale(1.04);
+        }
+        .btn-anim:active {
+          opacity: 0.7;
+          transform: scale(0.98);
+        }
+      `}</style>
       <div className="login-container">
         <form onSubmit={handleNext} className="login-form">
           {/* 왼쪽: 로그인 그룹 */}
@@ -108,7 +126,7 @@ export default function AdminLogin() {
                   <button
                     type="submit"
                     disabled={loading || !id || !pw}
-                    className="login-right__submit-button"
+                    className="login-right__submit-button btn-anim"
                   >
                     {loading ? '확인 중...' : '다음'}
                   </button>

@@ -6,6 +6,76 @@ import React, { useState } from 'react';
 import Nulltry from '../../assets/Nulltry.png';
 import { trpc } from '../../utils/trpc';
 
+<style>{`
+  .btn-anim {
+    transition:
+      background 0.18s,
+      color 0.18s,
+      opacity 0.18s,
+      transform 0.18s;
+  }
+  .btn-anim:hover,
+  .btn-anim:focus {
+    opacity: 0.85;
+    transform: scale(1.04);
+  }
+  .btn-anim:active {
+    opacity: 0.7;
+    transform: scale(0.98);
+  }
+  .select-anim {
+    transition:
+      box-shadow 0.18s,
+      border-color 0.18s,
+      background 0.18s,
+      color 0.18s,
+      transform 0.18s;
+  }
+  .select-anim:focus {
+    box-shadow: 0 0 0 2px #3379b7;
+    border-color: #3379b7;
+    background: #232226;
+    color: #3379b7;
+    transform: scale(1.03);
+  }
+  .select-anim:hover {
+    background: #232226;
+    color: #3379b7;
+  }
+  .tab-active,
+  .tab-inactive {
+    transition:
+      background 0.18s,
+      color 0.18s,
+      transform 0.18s,
+      opacity 0.18s;
+  }
+  .tab-active:hover,
+  .tab-inactive:hover {
+    transform: scale(1.02);
+    opacity: 0.9;
+  }
+  .tab-active:focus,
+  .tab-inactive:focus {
+    transform: scale(1.02);
+    opacity: 0.9;
+  }
+  .tab-active:active,
+  .tab-inactive:active {
+    transform: scale(0.98);
+    opacity: 0.8;
+  }
+  .fade-anim {
+    transition:
+      opacity 0.2s,
+      transform 0.2s;
+  }
+  .fade-anim-hide {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+`}</style>;
+
 function IconChevronDown() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style={{ display: 'block' }}>
@@ -49,14 +119,14 @@ function IconArrowDown() {
 type Artist = {
   id: number;
   name: string;
-  description?: string;
-  imageUrl?: string;
+  description: string | null;
+  imageUrl: string | null;
   categoryId: number;
   category: {
     id: number;
     name: string;
   };
-  songs: Song[];
+  songs: any[];
   createdAt: string;
   createdBy: string;
   updatedAt: string;
@@ -67,16 +137,20 @@ type Artist = {
 type Song = {
   id: number;
   title: string;
-  description?: string;
-  imageUrl?: string;
-  youtubeUrl?: string;
+  description: string | null;
+  imageUrl: string | null;
+  youtubeUrl: string | null;
   hasImage: boolean;
   hasAttachment: boolean;
-  pdfUrl?: string;
+  pdfUrl: string | null;
   artistId: number;
   artist: {
     id: number;
     name: string;
+    category: {
+      id: number;
+      name: string;
+    };
   };
   createdAt: string;
   createdBy: string;
@@ -84,6 +158,12 @@ type Song = {
   updatedBy: string;
   isActive: boolean;
   isFeaturedMainVisual: boolean;
+};
+
+type Category = {
+  id: number;
+  name: string;
+  description: string | null;
 };
 
 export default function PostsPage() {
@@ -105,7 +185,7 @@ export default function PostsPage() {
 
   // URL 쿼리 파라미터에서 탭 상태 초기화
   const [activeTab, setActiveTab] = useState<'artist' | 'song'>(() => {
-    const tabParam = searchParams.get('tab');
+    const tabParam = searchParams ? searchParams.get('tab') : null;
     return tabParam === 'song' ? 'song' : 'artist';
   });
 
@@ -489,7 +569,6 @@ export default function PostsPage() {
             fontWeight: 700,
             fontSize: 16,
             cursor: 'pointer',
-            transition: 'background 0.18s, color 0.18s',
           }}
           onClick={() => {
             setActiveTab('artist');
@@ -509,7 +588,6 @@ export default function PostsPage() {
             fontWeight: 700,
             fontSize: 16,
             cursor: 'pointer',
-            transition: 'background 0.18s, color 0.18s',
           }}
           onClick={() => {
             setActiveTab('song');
@@ -653,154 +731,122 @@ export default function PostsPage() {
               )}
             </div>
 
-            {/* 필터 드롭다운 */}
+            {/* Filter Section (animated, normal flow, no margin) */}
             {filterOpen && (
               <div
+                className={`filter-dropdown-anim ${filterOpen ? 'filter-dropdown-open' : 'filter-dropdown-closed'}`}
                 style={{
-                  position: 'absolute',
-                  top: '100%',
-                  left: 0,
-                  right: 0,
-                  background: 'rgb(44, 44, 44)',
-                  border: '1px solid rgb(26, 26, 26)',
+                  display: 'flex',
+                  gap: 8,
+                  background: '#262626',
+                  padding: filterOpen ? '24px 0 0 0' : '0',
                   borderRadius: 4,
-                  padding: '16px',
-                  marginTop: 8,
-                  zIndex: 1000,
                 }}
               >
-                <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 12 }}>
-                  <label
-                    style={{
-                      color: 'rgb(91, 91, 91)',
-                      fontSize: 12,
-                      fontWeight: 600,
-                      minWidth: 60,
-                    }}
-                  >
-                    카테고리:
-                  </label>
+                {/* Dropdown 1 */}
+                <div style={{ position: 'relative', minWidth: 140 }}>
                   <select
-                    value={filters.categoryId}
-                    onChange={(e) =>
-                      setFilters((prev) => ({ ...prev, categoryId: e.target.value }))
-                    }
+                    className="artist-filter-select select-anim"
                     style={{
-                      background: 'rgb(28, 28, 28)',
-                      color: 'rgb(84, 84, 84)',
+                      background: '#1C1C1C',
+                      color: '#545454',
+                      fontSize: 12,
                       border: 'none',
                       borderRadius: 4,
-                      height: 32,
-                      fontSize: 12,
-                      padding: '0px 8px',
-                      outline: 'none',
-                      minWidth: 120,
+                      height: 40,
+                      width: '100%',
+                      padding: '0 40px 0 16px',
+                      appearance: 'none',
                     }}
+                    value={filters.categoryId}
+                    onChange={(e) => setFilters((f) => ({ ...f, categoryId: e.target.value }))}
                   >
-                    <option value="">전체</option>
+                    <option value="">카테고리</option>
                     {categories.map((category) => (
                       <option key={category.id} value={category.id.toString()}>
                         {category.name}
                       </option>
                     ))}
                   </select>
-                </div>
-                <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 12 }}>
-                  <label
+                  <span
                     style={{
-                      color: 'rgb(91, 91, 91)',
-                      fontSize: 12,
-                      fontWeight: 600,
-                      minWidth: 60,
+                      position: 'absolute',
+                      right: 12,
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      pointerEvents: 'none',
                     }}
                   >
-                    상태:
-                  </label>
+                    <IconChevronDown />
+                  </span>
+                </div>
+                {/* Dropdown 2 */}
+                <div style={{ position: 'relative', minWidth: 120 }}>
                   <select
+                    className="artist-filter-select select-anim"
+                    style={{
+                      background: '#1C1C1C',
+                      color: '#545454',
+                      fontSize: 12,
+                      border: 'none',
+                      borderRadius: 4,
+                      height: 40,
+                      width: '100%',
+                      padding: '0 40px 0 16px',
+                      appearance: 'none',
+                    }}
                     value={filters.status}
-                    onChange={(e) => setFilters((prev) => ({ ...prev, status: e.target.value }))}
-                    style={{
-                      background: 'rgb(28, 28, 28)',
-                      color: 'rgb(84, 84, 84)',
-                      border: 'none',
-                      borderRadius: 4,
-                      height: 32,
-                      fontSize: 12,
-                      padding: '0px 8px',
-                      outline: 'none',
-                      minWidth: 120,
-                    }}
+                    onChange={(e) => setFilters((f) => ({ ...f, status: e.target.value }))}
                   >
-                    <option value="">전체</option>
-                    <option value="active">활성화</option>
-                    <option value="inactive">비활성화</option>
+                    <option value="">상태</option>
+                    <option value="active">활성</option>
+                    <option value="inactive">비활성</option>
                   </select>
-                </div>
-                <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-                  <label
+                  <span
                     style={{
-                      color: 'rgb(91, 91, 91)',
-                      fontSize: 12,
-                      fontWeight: 600,
-                      minWidth: 60,
+                      position: 'absolute',
+                      right: 12,
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      pointerEvents: 'none',
                     }}
                   >
-                    생성자:
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="생성자명 입력"
+                    <IconChevronDown />
+                  </span>
+                </div>
+                {/* Dropdown 3 */}
+                <div style={{ position: 'relative', minWidth: 120 }}>
+                  <select
+                    className="artist-filter-select select-anim"
+                    style={{
+                      background: '#1C1C1C',
+                      color: '#545454',
+                      fontSize: 12,
+                      border: 'none',
+                      borderRadius: 4,
+                      height: 40,
+                      width: '100%',
+                      padding: '0 40px 0 16px',
+                      appearance: 'none',
+                    }}
                     value={filters.creator}
-                    onChange={(e) => setFilters((prev) => ({ ...prev, creator: e.target.value }))}
-                    style={{
-                      background: 'rgb(28, 28, 28)',
-                      color: 'rgb(84, 84, 84)',
-                      border: 'none',
-                      borderRadius: 4,
-                      height: 32,
-                      fontSize: 12,
-                      padding: '0px 8px',
-                      outline: 'none',
-                      minWidth: 120,
-                    }}
-                  />
-                </div>
-                <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-                  <button
-                    className="btn-anim"
-                    style={{
-                      background: 'rgb(51, 121, 183)',
-                      color: '#fff',
-                      fontSize: 12,
-                      border: 'none',
-                      borderRadius: 4,
-                      height: 32,
-                      padding: '0px 16px',
-                      cursor: 'pointer',
-                    }}
-                    onClick={() => setFilterActive(true)}
+                    onChange={(e) => setFilters((f) => ({ ...f, creator: e.target.value }))}
                   >
-                    적용
-                  </button>
-                  <button
-                    className="btn-anim"
+                    <option value="">생성자</option>
+                    <option value="admin">admin</option>
+                    <option value="user">user</option>
+                  </select>
+                  <span
                     style={{
-                      background: 'rgb(183, 51, 51)',
-                      color: '#fff',
-                      fontSize: 12,
-                      border: 'none',
-                      borderRadius: 4,
-                      height: 32,
-                      padding: '0px 16px',
-                      cursor: 'pointer',
-                    }}
-                    onClick={() => {
-                      setFilters({ categoryId: '', status: '', creator: '' });
-                      setFilterActive(false);
+                      position: 'absolute',
+                      right: 12,
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      pointerEvents: 'none',
                     }}
                   >
-                    초기화
-                  </button>
+                    <IconChevronDown />
+                  </span>
                 </div>
               </div>
             )}
@@ -934,7 +980,7 @@ export default function PostsPage() {
                 </div>
               </div>
             ) : (
-              filteredArtists.map((artist, idx) => (
+              filteredArtists.map((artist: Artist, idx: number) => (
                 <div
                   key={artist.id}
                   style={{
@@ -1005,7 +1051,7 @@ export default function PostsPage() {
                       padding: '8px 0px',
                     }}
                   >
-                    {artist.categoryId || '-'}
+                    {artist.category?.name || '-'}
                   </div>
                   <div
                     style={{
@@ -1274,7 +1320,7 @@ export default function PostsPage() {
                     }}
                   >
                     <option value="">전체</option>
-                    {categories.map((category) => (
+                    {categories.map((category: Category) => (
                       <option key={category.id} value={category.id.toString()}>
                         {category.name}
                       </option>
@@ -1448,6 +1494,17 @@ export default function PostsPage() {
               </div>
               <div
                 style={{
+                  flex: '0 0 120px',
+                  padding: '12px 0px',
+                  textAlign: 'center',
+                  borderRight: '1px solid rgb(26, 26, 26)',
+                  background: 'rgb(38, 38, 38)',
+                }}
+              >
+                카테고리
+              </div>
+              <div
+                style={{
                   flex: '0 0 160px',
                   padding: '12px 0px',
                   textAlign: 'center',
@@ -1497,7 +1554,7 @@ export default function PostsPage() {
                 </div>
               </div>
             ) : (
-              filteredSongs.map((song, idx) => (
+              filteredSongs.map((song: Song, idx: number) => (
                 <div
                   key={song.id}
                   style={{
@@ -1569,6 +1626,18 @@ export default function PostsPage() {
                     }}
                   >
                     {song.artist?.name || '-'}
+                  </div>
+                  <div
+                    style={{
+                      flex: '0 0 120px',
+                      textAlign: 'center',
+                      borderRight: '1px solid rgb(26, 26, 26)',
+                      background: 'rgb(38, 38, 38)',
+                      color: 'rgb(91, 91, 91)',
+                      padding: '8px 0px',
+                    }}
+                  >
+                    {song.artist?.category?.name || '-'}
                   </div>
                   <div
                     style={{

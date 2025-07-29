@@ -70,7 +70,10 @@ export const artistRouter = router({
     .query(async ({ input }) => {
       return prisma.artist.findMany({
         where: { isActive: input?.isActive },
-        include: { songs: true },
+        include: {
+          songs: true,
+          category: true,
+        },
       });
     }),
 });

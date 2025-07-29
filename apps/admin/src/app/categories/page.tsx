@@ -408,6 +408,13 @@ export default function CategoriesPage() {
         .icon-btn:active svg { opacity: 0.7; transform: scale(0.96); }
         .icon-btn[title='수정']:hover svg path { stroke: #3379B7; }
         .icon-btn[title='삭제']:hover svg, .icon-btn[title='삭제']:focus svg { filter: drop-shadow(0 0 2px #B73333); }
+        .fade-anim {
+          transition: opacity 0.2s, transform 0.2s;
+        }
+        .fade-anim-hide {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
       `}</style>
       {/* Title & Top Controls */}
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24 }}>
@@ -709,119 +716,121 @@ export default function CategoriesPage() {
           )}
         </div>
         {/* Filter Section (animated, normal flow, no margin) */}
-        <div
-          className={`filter-dropdown-anim ${filterOpen ? 'filter-dropdown-open' : 'filter-dropdown-closed'}`}
-          style={{
-            display: 'flex',
-            gap: 8,
-            background: '#262626',
-            padding: filterOpen ? '24px 0 0 0' : '0',
-            borderRadius: 4,
-          }}
-        >
-          {/* Dropdown 1 */}
-          <div style={{ position: 'relative', minWidth: 140 }}>
-            <select
-              className="category-filter-select select-anim"
-              style={{
-                background: '#1C1C1C',
-                color: '#545454',
-                fontSize: 12,
-                border: 'none',
-                borderRadius: 4,
-                height: 40,
-                width: '100%',
-                padding: '0 40px 0 16px',
-                appearance: 'none',
-              }}
-              value={filters.order}
-              onChange={(e) => setFilters((f) => ({ ...f, order: e.target.value }))}
-            >
-              <option value="">순번 순 정렬</option>
-              <option value="asc">오름차순</option>
-              <option value="desc">내림차순</option>
-            </select>
-            <span
-              style={{
-                position: 'absolute',
-                right: 12,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                pointerEvents: 'none',
-              }}
-            >
-              <IconChevronDown />
-            </span>
+        {filterOpen && (
+          <div
+            className={`filter-dropdown-anim ${filterOpen ? 'filter-dropdown-open' : 'filter-dropdown-closed'}`}
+            style={{
+              display: 'flex',
+              gap: 8,
+              background: '#262626',
+              padding: '24px 0 0 0',
+              borderRadius: 4,
+            }}
+          >
+            {/* Dropdown 1 */}
+            <div style={{ position: 'relative', minWidth: 140 }}>
+              <select
+                className="category-filter-select select-anim"
+                style={{
+                  background: '#1C1C1C',
+                  color: '#545454',
+                  fontSize: 12,
+                  border: 'none',
+                  borderRadius: 4,
+                  height: 40,
+                  width: '100%',
+                  padding: '0 40px 0 16px',
+                  appearance: 'none',
+                }}
+                value={filters.order}
+                onChange={(e) => setFilters((f) => ({ ...f, order: e.target.value }))}
+              >
+                <option value="">순번 순 정렬</option>
+                <option value="asc">오름차순</option>
+                <option value="desc">내림차순</option>
+              </select>
+              <span
+                style={{
+                  position: 'absolute',
+                  right: 12,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  pointerEvents: 'none',
+                }}
+              >
+                <IconChevronDown />
+              </span>
+            </div>
+            {/* Dropdown 2 */}
+            <div style={{ position: 'relative', minWidth: 120 }}>
+              <select
+                className="category-filter-select select-anim"
+                style={{
+                  background: '#1C1C1C',
+                  color: '#545454',
+                  fontSize: 12,
+                  border: 'none',
+                  borderRadius: 4,
+                  height: 40,
+                  width: '100%',
+                  padding: '0 40px 0 16px',
+                  appearance: 'none',
+                }}
+                value={filters.status}
+                onChange={(e) => setFilters((f) => ({ ...f, status: e.target.value }))}
+              >
+                <option value="">상태</option>
+                <option value="active">활성</option>
+                <option value="inactive">비활성</option>
+              </select>
+              <span
+                style={{
+                  position: 'absolute',
+                  right: 12,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  pointerEvents: 'none',
+                }}
+              >
+                <IconChevronDown />
+              </span>
+            </div>
+            {/* Dropdown 3 */}
+            <div style={{ position: 'relative', minWidth: 120 }}>
+              <select
+                className="category-filter-select select-anim"
+                style={{
+                  background: '#1C1C1C',
+                  color: '#545454',
+                  fontSize: 12,
+                  border: 'none',
+                  borderRadius: 4,
+                  height: 40,
+                  width: '100%',
+                  padding: '0 40px 0 16px',
+                  appearance: 'none',
+                }}
+                value={filters.creator}
+                onChange={(e) => setFilters((f) => ({ ...f, creator: e.target.value }))}
+              >
+                <option value="">생성자</option>
+                <option value="admin">admin</option>
+                <option value="user">user</option>
+              </select>
+              <span
+                style={{
+                  position: 'absolute',
+                  right: 12,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  pointerEvents: 'none',
+                }}
+              >
+                <IconChevronDown />
+              </span>
+            </div>
           </div>
-          {/* Dropdown 2 */}
-          <div style={{ position: 'relative', minWidth: 120 }}>
-            <select
-              className="category-filter-select select-anim"
-              style={{
-                background: '#1C1C1C',
-                color: '#545454',
-                fontSize: 12,
-                border: 'none',
-                borderRadius: 4,
-                height: 40,
-                width: '100%',
-                padding: '0 40px 0 16px',
-                appearance: 'none',
-              }}
-              value={filters.status}
-              onChange={(e) => setFilters((f) => ({ ...f, status: e.target.value }))}
-            >
-              <option value="">상태</option>
-              <option value="active">활성</option>
-              <option value="inactive">비활성</option>
-            </select>
-            <span
-              style={{
-                position: 'absolute',
-                right: 12,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                pointerEvents: 'none',
-              }}
-            >
-              <IconChevronDown />
-            </span>
-          </div>
-          {/* Dropdown 3 */}
-          <div style={{ position: 'relative', minWidth: 120 }}>
-            <select
-              className="category-filter-select select-anim"
-              style={{
-                background: '#1C1C1C',
-                color: '#545454',
-                fontSize: 12,
-                border: 'none',
-                borderRadius: 4,
-                height: 40,
-                width: '100%',
-                padding: '0 40px 0 16px',
-                appearance: 'none',
-              }}
-              value={filters.creator}
-              onChange={(e) => setFilters((f) => ({ ...f, creator: e.target.value }))}
-            >
-              <option value="">생성자</option>
-              <option value="admin">admin</option>
-              <option value="user">user</option>
-            </select>
-            <span
-              style={{
-                position: 'absolute',
-                right: 12,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                pointerEvents: 'none',
-              }}
-            >
-              <IconChevronDown />
-            </span>
-          </div>
-        </div>
+        )}
       </div>
       {/* Table Header Wrapper */}
       <div style={{ background: '#2C2C2C', padding: '12px 24px', borderRadius: 4, marginTop: 24 }}>

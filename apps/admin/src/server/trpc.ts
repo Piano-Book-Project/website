@@ -1,7 +1,8 @@
+import type { PrismaClient } from '@prisma/client';
 import { initTRPC } from '@trpc/server';
 import { logger } from '../utils/logger';
 
-const t = initTRPC.create();
+const t = initTRPC.context<{ db: PrismaClient }>().create();
 
 // 요청/응답 로깅 미들웨어 (t.middleware 사용, input으로 변경)
 const loggingMiddleware = t.middleware(async ({ path, type, next, input }) => {

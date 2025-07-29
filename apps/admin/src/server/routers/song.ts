@@ -92,7 +92,14 @@ export const songRouter = router({
     .query(async ({ input }) => {
       return prisma.song.findMany({
         where: { isActive: input?.isActive },
-        include: { artist: true, tags: true },
+        include: {
+          artist: {
+            include: {
+              category: true,
+            },
+          },
+          tags: true,
+        },
       });
     }),
 });

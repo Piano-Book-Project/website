@@ -1,5 +1,6 @@
 import { createNextApiHandler } from '@trpc/server/adapters/next';
 import type { NextApiRequest, NextApiResponse } from 'next';
+import prisma from '../../../server/prisma';
 import { appRouter } from '../../../server/routers';
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -14,6 +15,6 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
   return createNextApiHandler({
     router: appRouter,
-    createContext: () => ({}),
+    createContext: () => ({ db: prisma }),
   })(req, res);
 }

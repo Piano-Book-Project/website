@@ -19,7 +19,18 @@ export function getDefaultImagePath(): string {
 
 export function getYoutubeThumbnail(youtubeUrl?: string): string | undefined {
   if (!youtubeUrl) return undefined;
-  const match = youtubeUrl.match(/[?&]v=([^&#]+)/);
-  const id = match ? match[1] : undefined;
-  return id ? `https://i.ytimg.com/vi/${id}/maxresdefault.jpg` : undefined;
+
+  // youtu.be/VIDEO_ID 형태 처리
+  const youtuBeMatch = youtubeUrl.match(/youtu\.be\/([^?&#]+)/);
+  if (youtuBeMatch) {
+    return `https://i.ytimg.com/vi/${youtuBeMatch[1]}/maxresdefault.jpg`;
+  }
+
+  // youtube.com/watch?v=VIDEO_ID 형태 처리
+  const youtubeMatch = youtubeUrl.match(/[?&]v=([^&#]+)/);
+  if (youtubeMatch) {
+    return `https://i.ytimg.com/vi/${youtubeMatch[1]}/maxresdefault.jpg`;
+  }
+
+  return undefined;
 }

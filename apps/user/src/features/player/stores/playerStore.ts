@@ -52,6 +52,29 @@ export const usePlayerStore = create<PlayerState & PlayerActions>((set, get) => 
     }
     // previous도 컴포넌트에서 API로 받아온 값을 setCurrentSong으로 넘겨야 함
   },
-  addSong: async () => {},
-  removeSong: async () => {},
+  addSong: async (song: any) => {
+    const { playlist } = get();
+    const newPlaylist = [
+      ...playlist,
+      {
+        id: Date.now(),
+        userId: 1,
+        artistId: song.artist.id,
+        songId: song.id,
+        song,
+        artist: song.artist,
+        createdAt: new Date().toISOString(),
+        createdBy: 'user',
+        updatedAt: new Date().toISOString(),
+        updatedBy: 'user',
+        isActive: true,
+      },
+    ];
+    set({ playlist: newPlaylist, currentSong: song });
+  },
+  removeSong: async (songId: number) => {
+    const { playlist } = get();
+    const newPlaylist = playlist.filter((item) => item.song.id !== songId);
+    set({ playlist: newPlaylist });
+  },
 }));

@@ -1,23 +1,9 @@
-interface MoreMenuProps {
-  onMenuClick?: (action: string) => void;
-  className?: string;
-}
+import { FaEllipsisH } from 'react-icons/fa';
 
-export function MoreMenu({ onMenuClick, className = '' }: MoreMenuProps) {
-  const handleClick = (action: string) => {
-    onMenuClick?.(action);
-  };
-
+export default function MoreMenu() {
   return (
-    <div className={`more-menu ${className}`}>
-      <button
-        className="more-menu__button"
-        onClick={() => handleClick('more')}
-        aria-label="More options"
-        type="button"
-      >
-        <span className="more-menu__icon">⋯</span>
-      </button>
-    </div>
+    <button className="more-menu-btn" aria-label="More options">
+      <FaEllipsisH />
+    </button>
   );
 }
