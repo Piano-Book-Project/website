@@ -69,9 +69,13 @@ async function main() {
             imageUrl: 'https://i.ytimg.com/vi/x8VYWazR5mE/hqdefault.jpg',
             youtubeUrl: 'https://www.youtube.com/watch?v=x8VYWazR5mE',
             hasImage: true,
+            createdBy: 'admin',
+            updatedBy: 'admin',
           },
         ],
       },
+      createdBy: 'admin',
+      updatedBy: 'admin',
     },
     include: { songs: true },
   });
@@ -93,9 +97,13 @@ async function main() {
             imageUrl: 'https://i.ytimg.com/vi/ArmDp-zijuc/hqdefault.jpg',
             youtubeUrl: 'https://www.youtube.com/watch?v=ArmDp-zijuc',
             hasImage: true,
+            createdBy: 'admin',
+            updatedBy: 'admin',
           },
         ],
       },
+      createdBy: 'admin',
+      updatedBy: 'admin',
     },
     include: { songs: true },
   });
@@ -118,9 +126,13 @@ async function main() {
             youtubeUrl: 'https://www.youtube.com/watch?v=3eytpBOkFqY',
             hasImage: true,
             isFeaturedMainVisual: true,
+            createdBy: 'admin',
+            updatedBy: 'admin',
           },
         ],
       },
+      createdBy: 'admin',
+      updatedBy: 'admin',
     },
     include: { songs: true },
   });
@@ -135,7 +147,7 @@ async function main() {
       nickname: '테스트유저',
     },
   });
-  const hebiSong = hebi.songs[0];
+  const hebiSong = (hebi as any).songs[0];
   await prisma.playlist.create({
     data: {
       userId: user.id,
